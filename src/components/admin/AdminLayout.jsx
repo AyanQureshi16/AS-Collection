@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Outlet, useLocation, Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { logoutAdmin } from "../../utils/adminAuth";
 import {
   Menu,
   X,
@@ -55,7 +56,10 @@ export default function AdminLayout() {
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
   const toggleMobileMenu = () => setMobileMenuOpen(!mobileMenuOpen);
   const toggleTheme = () => setTheme((current) => (current === "dark" ? "light" : "dark"));
-  const handleExitAdmin = () => navigate("/");
+  const handleExitAdmin = () => {
+    logoutAdmin();
+    navigate("/");
+  };
 
   return (
     <div

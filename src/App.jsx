@@ -24,6 +24,8 @@ import NotFound from "./pages/NotFound";
 
 // Admin
 import AdminLayout from "./components/admin/AdminLayout";
+import ProtectedAdminRoute from "./components/admin/ProtectedAdminRoute";
+import AdminLogin from "./pages/admin/AdminLogin";
 import Dashboard from "./pages/admin/Dashboard";
 import Products from "./pages/admin/Products";
 import CategoriesAdmin from "./pages/admin/Categories";
@@ -58,7 +60,15 @@ function App() {
                 <Route path="/checkout" element={<Checkout />} />
                 
                 {/* Admin Routes */}
-                <Route path="/local-admin" element={<AdminLayout />}>
+                <Route path="/local-admin/login" element={<AdminLogin />} />
+                <Route
+                  path="/local-admin"
+                  element={
+                    <ProtectedAdminRoute>
+                      <AdminLayout />
+                    </ProtectedAdminRoute>
+                  }
+                >
                   <Route index element={<Dashboard />} />
                   <Route path="products" element={<Products />} />
                   <Route path="categories" element={<CategoriesAdmin />} />
