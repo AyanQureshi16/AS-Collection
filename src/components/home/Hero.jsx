@@ -1,200 +1,170 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
-import { ArrowRight, ChevronDown, Sparkles, Shield, Truck } from "lucide-react";
-
-const heroWords = ["Luxury.", "Elegance.", "Prestige."];
+import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
+import { ArrowRight } from "lucide-react";
+import { useProducts } from "../../context/ProductContext";
+import { getFeaturedCustomerProducts, getCustomerVisibleProducts } from "../../data/products";
 
 export default function Hero() {
   const containerRef = useRef(null);
+  const prefersReduced = useReducedMotion();
+  const { products } = useProducts();
+
+  const heroProduct = useMemo(() => {
+    const featured = getFeaturedCustomerProducts(products);
+    const watch = featured.find((p) => String(p.category).toLowerCase() === "watches");
+    if (watch) return watch;
+    const anyWatch = getCustomerVisibleProducts(products).find(
+      (p) => String(p.category).toLowerCase() === "watches"
+    );
+    return anyWatch || featured[0] || getCustomerVisibleProducts(products)[0];
+  }, [products]);
+
+  const heroImage =
+    heroProduct?.images?.[0] ||
+    "https://cdn.shopify.com/s/files/1/1468/9008/products/WatchGuyNYC_RN022_Rolex_Day-Date_36_Green_Dial_Fluted_Bezel_President_Yellow_Gold_Watch_118238_2cefc687-3e22-408a-bf37-4207fdcdf808_800x.jpg?v=1586812972";
+
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end start"],
   });
-  const y = useTransform(scrollYProgress, [0, 1], [0, 180]);
-  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
+  const parallaxY = useTransform(scrollYProgress, [0, 1], [0, 120]);
+  const contentOpacity = useTransform(scrollYProgress, [0, 0.35], [1, 0]);
+
+  const ease = [0.22, 1, 0.36, 1];
+  const noMotion = prefersReduced;
 
   return (
     <section
       ref={containerRef}
-      className="relative min-h-screen flex items-center justify-center overflow-hidden"
+      className="relative min-h-[100svh] flex items-center overflow-hidden bg-ink"
     >
-      {/* Animated gradient background */}
-      <div className="absolute inset-0 bg-primary">
-        <div className="hero-glow absolute inset-0" />
-        {/* Animated orbs */}
-        <motion.div
-          animate={{ x: [0, 30, 0], y: [0, -30, 0] }}
-          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-1/4 right-1/4 w-96 h-96 bg-gold/5 rounded-full blur-3xl"
-        />
-        <motion.div
-          animate={{ x: [0, -20, 0], y: [0, 20, 0] }}
-          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-          className="absolute bottom-1/3 left-1/4 w-64 h-64 bg-gold/8 rounded-full blur-3xl"
-        />
-        {/* Grid overlay */}
-        <div
-          className="absolute inset-0 opacity-[0.03]"
-          style={{
-            backgroundImage: `linear-gradient(rgba(212,175,55,0.5) 1px, transparent 1px),
-                              linear-gradient(90deg, rgba(212,175,55,0.5) 1px, transparent 1px)`,
-            backgroundSize: "60px 60px",
-          }}
-        />
-      </div>
-
-      {/* Parallax image */}
-      <motion.div style={{ y }} className="absolute inset-0 z-0">
-        <img
-          src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1800&q=80"
-          alt="Luxury fashion hero"
-          className="w-full h-full object-cover opacity-20"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/60 via-primary/40 to-primary" />
-      </motion.div>
-
-      {/* Content */}
+      {/* Cinematic background */}
       <motion.div
-        style={{ opacity }}
-        className="relative z-10 text-center max-w-5xl mx-auto px-4"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: noMotion ? 0 : 1.4, ease }}
+        className="absolute inset-0"
       >
-        {/* Eyebrow */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="flex items-center justify-center gap-2 mb-6"
-        >
-          <div className="h-px w-12 bg-gold/50" />
-          <span className="text-gold font-inter text-xs tracking-[0.3em] uppercase">
-            Pakistan's Finest Luxury Fashion
-          </span>
-          <div className="h-px w-12 bg-gold/50" />
-        </motion.div>
-
-        {/* Main Heading */}
-        <div className="overflow-hidden py-4 -my-4 mb-4">
-          <motion.h1
-            initial={{ y: 80, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.3, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-            className="font-poppins font-black text-5xl sm:text-7xl md:text-8xl lg:text-9xl leading-tight sm:leading-none py-2 text-shadow-gold"
-          >
-            <span className="inline-block gold-text tracking-tight">AS Collection</span>
-          </motion.h1>
-        </div>
-
-        {/* Animated word */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.7 }}
-          className="font-poppins text-xl sm:text-2xl md:text-3xl text-white/40 font-light mb-8 tracking-widest"
-        >
-          Where fashion meets{" "}
-          <RotatingWord words={heroWords} />
-        </motion.div>
-
-        {/* Description */}
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.9 }}
-          className="font-inter text-white/50 text-base sm:text-lg max-w-xl mx-auto mb-10 leading-relaxed"
-        >
-          Discover exclusive men's & women's clothing, Swiss-inspired watches, and
-          signature fragrances — all curated for the discerning Pakistani.
-        </motion.p>
-
-        {/* CTAs */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.1 }}
-          className="flex flex-col sm:flex-row items-center justify-center gap-4"
-        >
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <Link
-              to="/shop"
-              className="btn-gold inline-flex items-center gap-2 text-base px-10 py-4 animate-pulse-gold"
-            >
-              Shop Now <ArrowRight size={18} />
-            </Link>
-          </motion.div>
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <Link
-              to="/categories"
-              className="btn-outline-gold inline-flex items-center gap-2 text-base px-10 py-4"
-            >
-              Explore Categories
-            </Link>
-          </motion.div>
-        </motion.div>
-
-        {/* Trust badges */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.3 }}
-          className="flex flex-wrap items-center justify-center gap-6 mt-14"
-        >
-          {[
-            { icon: Truck, text: "Free Delivery Over PKR 5,000" },
-            { icon: Shield, text: "100% Authentic Products" },
-            { icon: Sparkles, text: "Premium Quality Guaranteed" },
-          ].map(({ icon: Icon, text }) => (
-            <div key={text} className="flex items-center gap-2 text-white/30 text-xs font-inter">
-              <Icon size={14} className="text-gold" />
-              {text}
-            </div>
-          ))}
-        </motion.div>
+        <div className="absolute inset-0 bg-ink" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_50%_at_70%_50%,rgba(201,168,106,0.06)_0%,transparent_70%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_50%_80%_at_20%_80%,rgba(201,168,106,0.04)_0%,transparent_60%)]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-ink/20 via-transparent to-ink" />
       </motion.div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10 pt-24 pb-16 lg:pb-0">
+        <motion.div
+          style={{ opacity: contentOpacity }}
+          className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center min-h-[calc(100svh-6rem)]"
+        >
+          {/* Mobile: Watch first */}
+          <motion.div
+            initial={noMotion ? false : { opacity: 0, scale: 0.92 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: noMotion ? 0 : 1.4, delay: 0.6, ease }}
+            style={{ y: noMotion ? 0 : parallaxY }}
+            className="relative order-1 lg:order-2 flex items-center justify-center"
+          >
+            <div className="relative w-full max-w-[520px] lg:max-w-none">
+              {/* Subtle glow */}
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(201,168,106,0.12)_0%,transparent_65%)] blur-2xl scale-110" />
+
+              <motion.img
+                src={heroImage}
+                alt={heroProduct?.name || "ZELMIOR premium watch"}
+                className="relative w-full h-auto object-contain max-h-[340px] sm:max-h-[420px] lg:max-h-[580px] mx-auto drop-shadow-[0_32px_64px_rgba(0,0,0,0.7)]"
+                animate={noMotion ? {} : { y: [0, -10, 0] }}
+                transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
+              />
+
+              {/* Reflection line */}
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-2/3 h-px bg-gradient-to-r from-transparent via-champagne/20 to-transparent" />
+            </div>
+          </motion.div>
+
+          {/* Content */}
+          <div className="relative order-2 lg:order-1 z-10 lg:pr-8">
+            {/* Wordmark entrance */}
+            <motion.p
+              initial={noMotion ? false : { opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: noMotion ? 0 : 0.8, delay: 0.2, ease }}
+              className="font-display text-sm tracking-[0.35em] text-champagne/80 mb-8 hidden lg:block"
+            >
+              ZELMIOR
+            </motion.p>
+
+            <motion.p
+              initial={noMotion ? false : { opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: noMotion ? 0 : 0.8, delay: 0.4, ease }}
+              className="eyebrow mb-6"
+            >
+              The Art of Time
+            </motion.p>
+
+            <motion.h1
+              initial={noMotion ? false : { opacity: 0, y: 32 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: noMotion ? 0 : 1, delay: 0.55, ease }}
+              className="font-display font-light text-5xl sm:text-6xl md:text-7xl lg:text-[5.5rem] xl:text-[6.5rem] leading-[0.95] tracking-tight text-ivory mb-8"
+            >
+              TIME,<br />
+              <span className="italic text-champagne">REFINED.</span>
+            </motion.h1>
+
+            <motion.p
+              initial={noMotion ? false : { opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: noMotion ? 0 : 0.8, delay: 0.75, ease }}
+              className="font-inter text-muted text-base sm:text-lg leading-relaxed max-w-md mb-12"
+            >
+              Precision-crafted watches designed for those who value every second.
+            </motion.p>
+
+            <motion.div
+              initial={noMotion ? false : { opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: noMotion ? 0 : 0.8, delay: 0.95, ease }}
+              className="flex flex-col sm:flex-row items-start gap-4 sm:gap-5"
+            >
+              <Link to="/shop" className="btn-primary group">
+                Explore Collection
+                <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform duration-400" />
+              </Link>
+              <Link to="/about" className="btn-ghost">
+                Discover ZELMIOR
+              </Link>
+            </motion.div>
+
+            {/* Trust indicators — minimal */}
+            <motion.div
+              initial={noMotion ? false : { opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: noMotion ? 0 : 0.8, delay: 1.2, ease }}
+              className="flex flex-wrap gap-x-10 gap-y-4 mt-16 pt-8 border-t border-white/[0.06]"
+            >
+              {["Premium Quality", "Secure Shopping", "Nationwide Delivery"].map((item) => (
+                <span key={item} className="font-inter text-[11px] tracking-widest uppercase text-muted">
+                  {item}
+                </span>
+              ))}
+            </motion.div>
+          </div>
+        </motion.div>
+      </div>
 
       {/* Scroll indicator */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 1.5 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2"
+        transition={{ delay: 1.5, duration: 0.8 }}
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 hidden lg:flex flex-col items-center gap-3"
+        aria-hidden="true"
       >
-        <motion.div
-          animate={{ y: [0, 8, 0] }}
-          transition={{ duration: 1.5, repeat: Infinity }}
-          className="flex flex-col items-center gap-1 text-white/30"
-        >
-          <span className="text-[10px] font-inter tracking-widest uppercase">Scroll</span>
-          <ChevronDown size={16} />
-        </motion.div>
+        <span className="font-inter text-[10px] tracking-[0.3em] uppercase text-muted/60">Scroll</span>
+        <div className="w-px h-10 bg-gradient-to-b from-champagne/40 to-transparent" />
       </motion.div>
     </section>
-  );
-}
-
-// Rotating word animation component
-function RotatingWord({ words }) {
-  const [index, setIndex] = useState(0);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setIndex((prev) => (prev + 1) % words.length);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, [words.length]);
-
-  return (
-    <AnimatePresence mode="wait">
-      <motion.span
-        key={index}
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -12 }}
-        transition={{ duration: 0.3 }}
-        className="inline-block text-gold"
-      >
-        {words[index]}
-      </motion.span>
-    </AnimatePresence>
   );
 }

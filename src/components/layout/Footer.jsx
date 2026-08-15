@@ -1,148 +1,71 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import {
-  Instagram,
-  Facebook,
-  Twitter,
-  Youtube,
-  MapPin,
-  Phone,
-  Mail,
-  ArrowRight,
-} from "lucide-react";
+import { Instagram, Facebook, ArrowRight } from "lucide-react";
 
-const footerLinks = {
+const footerNav = {
   Shop: [
-    { label: "Men's Collection", to: "/shop?category=men" },
-    { label: "Women's Collection", to: "/shop?category=women" },
-    { label: "Luxury Watches", to: "/shop?category=watches" },
-    { label: "Signature Perfumes", to: "/shop?category=perfumes" },
+    { label: "The Collection", to: "/shop" },
     { label: "New Arrivals", to: "/shop?sort=new" },
-    { label: "Best Sellers", to: "/shop?sort=bestseller" },
+    { label: "Men's Watches", to: "/shop?category=men" },
+    { label: "Women's Watches", to: "/shop?category=women" },
   ],
-  Company: [
-    { label: "About Us", to: "/about" },
+  Brand: [
+    { label: "About", to: "/about" },
     { label: "Contact", to: "/contact" },
-    { label: "Careers", to: "/about" },
-    { label: "Press", to: "/about" },
-  ],
-  Support: [
-    { label: "FAQ", to: "/contact" },
-    { label: "Shipping Policy", to: "/contact" },
-    { label: "Return & Exchange", to: "/contact" },
-    { label: "Size Guide", to: "/shop" },
-    { label: "Track Order", to: "/contact" },
+    { label: "Shipping", to: "/contact" },
+    { label: "Returns", to: "/contact" },
   ],
 };
 
 const socials = [
-  { icon: Instagram, href: "#", label: "Instagram" },
-  { icon: Facebook, href: "#", label: "Facebook" },
-  { icon: Twitter, href: "#", label: "Twitter" },
-  { icon: Youtube, href: "#", label: "YouTube" },
+  { icon: Instagram, href: "https://instagram.com", label: "Instagram" },
+  { icon: Facebook, href: "https://facebook.com", label: "Facebook" },
+  { label: "TikTok", href: "https://tiktok.com", custom: "Tk" },
+  { label: "WhatsApp", href: "https://whatsapp.com", custom: "Wa" },
 ];
 
 export default function Footer() {
+  const [email, setEmail] = useState("");
+  const [subscribed, setSubscribed] = useState(false);
+
+  const handleNewsletter = (e) => {
+    e.preventDefault();
+    if (email) {
+      setSubscribed(true);
+      setEmail("");
+      setTimeout(() => setSubscribed(false), 3000);
+    }
+  };
+
   return (
-    <footer className="bg-dark-50 border-t border-white/5 mt-auto">
-      {/* Newsletter Strip */}
-      <div className="bg-gold py-10 px-4">
-        <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center gap-6">
-          <div className="flex-1 text-center md:text-left">
-            <h3 className="font-poppins font-bold text-primary text-2xl">
-              Join the Inner Circle
-            </h3>
-            <p className="text-primary/70 font-inter text-sm mt-1">
-              Exclusive offers, early access, and style inspiration delivered to your inbox.
-            </p>
-          </div>
-          <form
-            className="flex gap-2 w-full md:w-auto"
-            onSubmit={(e) => e.preventDefault()}
-          >
-            <input
-              type="email"
-              placeholder="Your email address"
-              className="flex-1 md:w-64 px-4 py-3 rounded-full bg-primary/10 text-primary placeholder:text-primary/50 border border-primary/20 focus:outline-none focus:border-primary/50 font-inter text-sm"
-            />
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              type="submit"
-              className="bg-primary text-white px-6 py-3 rounded-full font-poppins font-semibold text-sm flex items-center gap-2 whitespace-nowrap"
-            >
-              Subscribe <ArrowRight size={16} />
-            </motion.button>
-          </form>
+    <footer className="bg-ink border-t border-white/[0.06] mt-auto">
+      {/* Large brand statement */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-12">
+        <div className="text-center mb-20">
+          <Link to="/" className="inline-block">
+            <h2 className="font-display text-5xl md:text-7xl lg:text-8xl tracking-[0.15em] text-ivory font-light leading-none hover:text-champagne transition-colors duration-500">
+              ZELMIOR
+            </h2>
+          </Link>
+          <p className="font-display italic text-champagne/80 text-lg md:text-xl mt-6 tracking-wide">
+            The Art of Time.
+          </p>
         </div>
-      </div>
 
-      {/* Main Footer */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
-          {/* Brand Column */}
-          <div className="lg:col-span-2">
-            <Link to="/" className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 rounded-lg bg-gold flex items-center justify-center">
-                <span className="font-poppins font-black text-primary text-sm">AS</span>
-              </div>
-              <div>
-                <div className="font-poppins font-bold text-white text-lg leading-none">
-                  AS Collection
-                </div>
-                <div className="text-gold text-[10px] font-inter tracking-[0.2em] uppercase">
-                  Luxury Fashion
-                </div>
-              </div>
-            </Link>
-            <p className="font-inter text-white/50 text-sm leading-relaxed mb-6 max-w-xs">
-              Pakistan's premier destination for luxury fashion, premium timepieces,
-              and signature fragrances. Crafting experiences, not just products.
-            </p>
-            {/* Contact Info */}
-            <div className="space-y-3 mb-6">
-              <div className="flex items-center gap-3 text-white/40 text-sm">
-                <MapPin size={16} className="text-gold flex-shrink-0" />
-                <span>Plot 14, Fashion Street, Lahore, Pakistan</span>
-              </div>
-              <div className="flex items-center gap-3 text-white/40 text-sm">
-                <Phone size={16} className="text-gold flex-shrink-0" />
-                <span>+92 300 123 4567</span>
-              </div>
-              <div className="flex items-center gap-3 text-white/40 text-sm">
-                <Mail size={16} className="text-gold flex-shrink-0" />
-                <span>hello@ascollection.pk</span>
-              </div>
-            </div>
-            {/* Socials */}
-            <div className="flex items-center gap-3">
-              {socials.map(({ icon: Icon, href, label }) => (
-                <motion.a
-                  key={label}
-                  href={href}
-                  aria-label={label}
-                  whileHover={{ scale: 1.1, y: -2 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="w-9 h-9 rounded-full glass gold-border flex items-center justify-center text-white/50 hover:text-gold transition-colors"
-                >
-                  <Icon size={16} />
-                </motion.a>
-              ))}
-            </div>
-          </div>
-
-          {/* Link Columns */}
-          {Object.entries(footerLinks).map(([title, links]) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-16 mb-20">
+          {/* Navigation columns */}
+          {Object.entries(footerNav).map(([title, links]) => (
             <div key={title}>
-              <h4 className="font-poppins font-semibold text-white text-sm uppercase tracking-widest mb-4">
+              <h4 className="font-inter text-[10px] tracking-[0.35em] uppercase text-muted mb-6">
                 {title}
               </h4>
-              <ul className="space-y-3">
+              <ul className="space-y-4">
                 {links.map((link) => (
                   <li key={link.label}>
                     <Link
                       to={link.to}
-                      className="font-inter text-white/40 text-sm hover:text-gold transition-colors"
+                      className="font-inter text-sm text-muted hover:text-champagne transition-colors duration-300 link-underline pb-0.5"
                     >
                       {link.label}
                     </Link>
@@ -151,18 +74,57 @@ export default function Footer() {
               </ul>
             </div>
           ))}
+
+          {/* Newsletter */}
+          <div>
+            <h4 className="font-inter text-[10px] tracking-[0.35em] uppercase text-muted mb-6">
+              Newsletter
+            </h4>
+            <p className="font-inter text-sm text-muted mb-6 leading-relaxed">
+              Be the first to discover new arrivals and exclusive releases.
+            </p>
+            {!subscribed ? (
+              <form onSubmit={handleNewsletter} className="flex flex-col gap-3">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Your email"
+                  required
+                  className="input-luxury text-sm py-3"
+                />
+                <button type="submit" className="btn-primary text-[10px] py-3 group">
+                  Subscribe
+                  <ArrowRight size={12} className="group-hover:translate-x-1 transition-transform" />
+                </button>
+              </form>
+            ) : (
+              <p className="font-inter text-sm text-champagne">Thank you for subscribing.</p>
+            )}
+          </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="mt-12 pt-6 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="font-inter text-white/30 text-xs">
-            © {new Date().getFullYear()} AS Collection. All rights reserved.
-          </p>
-          <div className="flex items-center gap-6">
-            <span className="font-inter text-white/20 text-xs">Privacy Policy</span>
-            <span className="font-inter text-white/20 text-xs">Terms of Service</span>
-            <span className="font-inter text-white/20 text-xs">Cookies</span>
+        {/* Social + bottom */}
+        <div className="flex flex-col md:flex-row items-center justify-between gap-8 pt-8 border-t border-white/[0.06]">
+          <div className="flex items-center gap-5">
+            {socials.map(({ icon: Icon, href, label, custom }) => (
+              <motion.a
+                key={label}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={label}
+                whileHover={{ y: -2 }}
+                className="w-10 h-10 border border-white/[0.08] flex items-center justify-center text-muted hover:text-champagne hover:border-champagne/30 transition-all duration-300 text-xs font-inter"
+              >
+                {Icon ? <Icon size={16} strokeWidth={1.5} /> : custom}
+              </motion.a>
+            ))}
           </div>
+
+          <p className="font-inter text-xs text-muted/60">
+            © {new Date().getFullYear()} ZELMIOR. All rights reserved.
+          </p>
         </div>
       </div>
     </footer>

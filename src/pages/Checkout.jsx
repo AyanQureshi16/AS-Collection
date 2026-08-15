@@ -231,24 +231,27 @@ export default function Checkout() {
   if (orderPlaced) {
     return (
       <Layout>
-        <div className="pt-28 pb-20 min-h-screen flex items-center justify-center px-4">
-          <div className="glass gold-border max-w-xl w-full rounded-3xl p-8 text-center">
-            <div className="flex justify-center mb-5">
-              <div className="rounded-full bg-green-500/10 p-3 text-green-400">
-                <CheckCircle2 size={36} />
+        <div className="pt-32 pb-24 min-h-screen flex items-center justify-center px-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="glass gold-border max-w-xl w-full rounded-3xl p-10 text-center"
+          >
+            <div className="flex justify-center mb-6">
+              <div className="rounded-full bg-green-500/10 p-4 text-green-400">
+                <CheckCircle2 size={48} />
               </div>
             </div>
-            <p className="font-poppins font-semibold text-gold text-sm uppercase tracking-[0.2em] mb-3">Order Placed Successfully</p>
-            <h1 className="font-poppins font-black text-3xl text-white mb-3">Thank you for your order.</h1>
-            <p className="font-inter text-white/60 text-sm mb-5">Your order number is:</p>
-            <div className="inline-flex items-center justify-center rounded-xl border border-gold/40 bg-gold/10 px-5 py-3 font-mono text-lg text-gold font-semibold mb-6">
+            <p className="text-gold font-inter text-xs tracking-[0.35em] uppercase mb-4">Order Placed Successfully</p>
+            <h1 className="font-playfair font-black text-white text-3xl md:text-4xl mb-4">Thank You</h1>
+            <p className="font-inter text-white/50 text-base mb-6">Your order number is:</p>
+            <div className="inline-flex items-center justify-center rounded-xl border border-gold/40 bg-gold/10 px-6 py-4 font-mono text-xl gold-text font-semibold mb-8">
               {orderPlaced.orderNumber}
             </div>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Link to="/shop" className="btn-gold px-6 py-3 text-center">Continue Shopping</Link>
-              <Link to="/cart" className="btn-secondary px-6 py-3 text-center">View Cart</Link>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link to="/shop" className="btn-gold px-8 py-4 text-center">Continue Shopping</Link>
             </div>
-          </div>
+          </motion.div>
         </div>
       </Layout>
     );
@@ -257,10 +260,10 @@ export default function Checkout() {
   if (cartItems.length === 0) {
     return (
       <Layout>
-        <div className="pt-28 pb-20 min-h-screen flex items-center justify-center">
+        <div className="pt-32 pb-24 min-h-screen flex items-center justify-center">
           <div className="text-center max-w-md mx-auto px-4">
-            <h1 className="font-poppins font-bold text-white text-3xl mb-4">Your cart is empty</h1>
-            <p className="font-inter text-white/40 text-sm mb-6">Start shopping to add products and continue to checkout.</p>
+            <h1 className="font-playfair font-black text-white text-4xl mb-4">Your Cart is Empty</h1>
+            <p className="font-inter text-white/50 text-base mb-8">Start shopping to add products and continue to checkout.</p>
             <Link to="/shop" className="btn-gold">Start Shopping</Link>
           </div>
         </div>
@@ -270,26 +273,29 @@ export default function Checkout() {
 
   return (
     <Layout>
-      <div className="pt-28 pb-20">
+      <div className="pt-32 pb-24">
         <div className="max-w-6xl mx-auto px-4">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
-            <h1 className="font-poppins font-black text-4xl text-white mb-2">Checkout</h1>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-12">
+            <p className="text-gold font-inter text-xs tracking-[0.35em] uppercase mb-4">Complete Your Order</p>
+            <h1 className="font-playfair font-black text-4xl md:text-5xl text-white mb-4">
+              <span className="gold-text">Checkout</span>
+            </h1>
             <p className="text-white/40 font-inter text-sm flex items-center gap-2">
-              <MessageCircle size={14} className="text-green-400" />
+              <MessageCircle size={16} className="text-green-400" />
               Your order will be confirmed via WhatsApp
             </p>
           </motion.div>
 
           <form onSubmit={handlePlaceOrder}>
-            <div className="grid lg:grid-cols-5 gap-8">
+            <div className="grid lg:grid-cols-5 gap-10">
               <div className="lg:col-span-3 space-y-6">
-                <div className="glass gold-border rounded-2xl p-6">
-                  <h2 className="font-poppins font-bold text-white text-lg mb-6 flex items-center gap-2">
-                    <User size={18} className="text-gold" />
+                <div className="glass gold-border rounded-2xl p-8">
+                  <h2 className="font-playfair font-bold text-white text-xl mb-8 flex items-center gap-3">
+                    <User size={20} className="text-gold" />
                     Customer Information
                   </h2>
 
-                  <div className="space-y-4">
+                  <div className="space-y-5">
                     <div>
                       <label className="block text-white/60 text-sm font-inter mb-2" htmlFor="name">
                         Full Name <span className="text-gold">*</span>
@@ -303,7 +309,7 @@ export default function Checkout() {
                         placeholder="e.g., Ahmed Khan"
                         className={`input-luxury ${errors.name ? "border-red-500/50" : ""}`}
                       />
-                      {errors.name && <p className="text-red-400 text-xs mt-1 font-inter">{errors.name}</p>}
+                      {errors.name && <p className="text-red-400 text-xs mt-2 font-inter">{errors.name}</p>}
                     </div>
 
                     <div>
@@ -311,7 +317,7 @@ export default function Checkout() {
                         Phone Number <span className="text-gold">*</span>
                       </label>
                       <div className="relative">
-                        <Phone size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30" />
+                        <Phone size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30" />
                         <input
                           type="tel"
                           id="phone"
@@ -319,10 +325,10 @@ export default function Checkout() {
                           value={form.phone}
                           onChange={handleChange}
                           placeholder="03001234567"
-                          className={`input-luxury pl-10 ${errors.phone ? "border-red-500/50" : ""}`}
+                          className={`input-luxury pl-12 ${errors.phone ? "border-red-500/50" : ""}`}
                         />
                       </div>
-                      {errors.phone && <p className="text-red-400 text-xs mt-1 font-inter">{errors.phone}</p>}
+                      {errors.phone && <p className="text-red-400 text-xs mt-2 font-inter">{errors.phone}</p>}
                     </div>
 
                     <div>
@@ -330,7 +336,7 @@ export default function Checkout() {
                         Email <span className="text-white/30 text-xs">(Optional)</span>
                       </label>
                       <div className="relative">
-                        <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30" />
+                        <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30" />
                         <input
                           type="email"
                           id="email"
@@ -338,10 +344,10 @@ export default function Checkout() {
                           value={form.email}
                           onChange={handleChange}
                           placeholder="you@example.com"
-                          className={`input-luxury pl-10 ${errors.email ? "border-red-500/50" : ""}`}
+                          className={`input-luxury pl-12 ${errors.email ? "border-red-500/50" : ""}`}
                         />
                       </div>
-                      {errors.email && <p className="text-red-400 text-xs mt-1 font-inter">{errors.email}</p>}
+                      {errors.email && <p className="text-red-400 text-xs mt-2 font-inter">{errors.email}</p>}
                     </div>
 
                     <div>
@@ -360,7 +366,7 @@ export default function Checkout() {
                           <option key={city} value={city} className="bg-dark-50">{city}</option>
                         ))}
                       </select>
-                      {errors.city && <p className="text-red-400 text-xs mt-1 font-inter">{errors.city}</p>}
+                      {errors.city && <p className="text-red-400 text-xs mt-2 font-inter">{errors.city}</p>}
                     </div>
 
                     <div>
@@ -368,7 +374,7 @@ export default function Checkout() {
                         Address <span className="text-gold">*</span>
                       </label>
                       <div className="relative">
-                        <MapPin size={16} className="absolute left-4 top-4 text-white/30" />
+                        <MapPin size={18} className="absolute left-4 top-4 text-white/30" />
                         <textarea
                           id="address"
                           name="address"
@@ -376,10 +382,10 @@ export default function Checkout() {
                           onChange={handleChange}
                           placeholder="House #, Street, Block, Area, City..."
                           rows={3}
-                          className={`input-luxury pl-10 resize-none ${errors.address ? "border-red-500/50" : ""}`}
+                          className={`input-luxury pl-12 resize-none ${errors.address ? "border-red-500/50" : ""}`}
                         />
                       </div>
-                      {errors.address && <p className="text-red-400 text-xs mt-1 font-inter">{errors.address}</p>}
+                      {errors.address && <p className="text-red-400 text-xs mt-2 font-inter">{errors.address}</p>}
                     </div>
 
                     <div>
@@ -387,7 +393,7 @@ export default function Checkout() {
                         Special Instructions <span className="text-white/30 text-xs">(Optional)</span>
                       </label>
                       <div className="relative">
-                        <FileText size={16} className="absolute left-4 top-4 text-white/30" />
+                        <FileText size={18} className="absolute left-4 top-4 text-white/30" />
                         <textarea
                           id="instructions"
                           name="instructions"
@@ -395,20 +401,20 @@ export default function Checkout() {
                           onChange={handleChange}
                           placeholder="Gift wrapping, urgent delivery, color preference..."
                           rows={2}
-                          className="input-luxury pl-10 resize-none"
+                          className="input-luxury pl-12 resize-none"
                         />
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="glass rounded-2xl p-4 border border-green-500/20 bg-green-500/5">
+                <div className="glass rounded-2xl p-5 border border-green-500/20 bg-green-500/5">
                   <div className="flex items-start gap-3">
                     <MessageCircle size={20} className="text-green-400 flex-shrink-0 mt-0.5" />
                     <div>
-                      <p className="font-poppins font-semibold text-green-400 text-sm mb-1">WhatsApp Order Confirmation</p>
+                      <p className="font-playfair font-semibold text-green-400 text-sm mb-1">WhatsApp Order Confirmation</p>
                       <p className="font-inter text-white/40 text-xs leading-relaxed">
-                        Clicking “Place Order” opens WhatsApp with your order summary pre-filled. Send the message to confirm.
+                        Clicking "Place Order" opens WhatsApp with your order summary pre-filled. Send the message to confirm.
                       </p>
                     </div>
                   </div>
@@ -416,49 +422,51 @@ export default function Checkout() {
               </div>
 
               <div className="lg:col-span-2">
-                <div className="glass gold-border rounded-2xl p-5 sticky top-24">
-                  <h2 className="font-poppins font-bold text-white text-lg mb-4">Order Summary</h2>
+                <div className="glass gold-border rounded-2xl p-6 sticky top-28">
+                  <h2 className="font-playfair font-bold text-white text-xl mb-6">Order Summary</h2>
 
-                  <div className="space-y-3 mb-5">
+                  <div className="space-y-4 mb-6">
                     {cartItems.map((item) => (
-                      <div key={`${item.id}-${item.selectedSize || "default"}`} className="flex gap-3 pb-3 border-b border-white/5">
-                        <div className="w-14 h-14 rounded-xl overflow-hidden bg-dark-100 flex-shrink-0">
+                      <div key={`${item.id}-${item.selectedSize || "default"}`} className="flex gap-4 pb-4 border-b border-white/5">
+                        <div className="w-16 h-16 rounded-xl overflow-hidden bg-dark-100 flex-shrink-0">
                           <img src={item.image || item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-white text-xs font-poppins font-semibold line-clamp-2">{item.name}</p>
-                          <p className="text-white/30 text-[11px] mt-1">Qty: {item.quantity}</p>
+                          <p className="text-white text-sm font-playfair font-semibold line-clamp-2">{item.name}</p>
+                          <p className="text-white/30 text-xs mt-1">Qty: {item.quantity}</p>
                         </div>
-                        <p className="text-gold text-xs font-poppins font-semibold">
+                        <p className="text-gold text-sm font-poppins font-semibold">
                           PKR {(Number(item.price || 0) * Number(item.quantity || 0)).toLocaleString()}
                         </p>
                       </div>
                     ))}
                   </div>
 
-                  <div className="space-y-3 text-sm font-inter">
+                  <div className="space-y-4 text-sm font-inter">
                     <div className="flex justify-between text-white/50">
                       <span>Subtotal</span>
                       <span>PKR {cartSubtotal.toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between text-white/50">
                       <span>Shipping</span>
-                      <span>Free</span>
+                      <span className="text-gold">Free</span>
                     </div>
-                    <div className="h-px bg-white/5 my-3" />
-                    <div className="flex justify-between text-white font-poppins font-bold text-base">
+                    <div className="h-px bg-white/5 my-4" />
+                    <div className="flex justify-between text-white font-poppins font-bold text-lg">
                       <span>Grand Total</span>
-                      <span className="text-gold">PKR {grandTotal.toLocaleString()}</span>
+                      <span className="gold-text">PKR {grandTotal.toLocaleString()}</span>
                     </div>
                   </div>
 
-                  <button
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                     type="submit"
                     disabled={submitting}
-                    className="btn-gold w-full mt-6 py-3.5 disabled:opacity-60 disabled:cursor-not-allowed"
+                    className="btn-gold w-full mt-8 py-4 disabled:opacity-60 disabled:cursor-not-allowed text-base"
                   >
                     {submitting ? "Processing..." : "Place Order"}
-                  </button>
+                  </motion.button>
                 </div>
               </div>
             </div>

@@ -44,15 +44,15 @@ export default function Cart() {
   if (cartItems.length === 0) {
     return (
       <Layout>
-        <div className="pt-28 pb-20 min-h-screen flex items-center justify-center">
+        <div className="pt-32 pb-24 min-h-screen flex items-center justify-center">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             className="text-center max-w-md mx-auto px-4"
           >
-            <div className="text-8xl mb-6">🛍️</div>
-            <h1 className="font-poppins font-bold text-white text-3xl mb-3">Your Cart is Empty</h1>
-            <p className="font-inter text-white/40 text-base mb-8">
+            <div className="text-8xl mb-8">🛍️</div>
+            <h1 className="font-playfair font-black text-white text-4xl mb-4">Your Cart is Empty</h1>
+            <p className="font-inter text-white/50 text-lg mb-10 leading-relaxed">
               Looks like you haven't added anything yet. Start shopping our luxury collection.
             </p>
             <Link to="/shop" className="btn-gold inline-flex items-center gap-2">
@@ -67,10 +67,10 @@ export default function Cart() {
 
   return (
     <Layout>
-      <div className="pt-28 pb-20">
+      <div className="pt-32 pb-24">
         <div className="max-w-7xl mx-auto px-4">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
-            <h1 className="font-poppins font-black text-4xl text-white mb-2">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-12">
+            <h1 className="font-playfair font-black text-4xl md:text-5xl text-white mb-4">
               Shopping <span className="gold-text">Cart</span>
             </h1>
             <p className="text-white/40 font-inter text-sm">
@@ -78,8 +78,8 @@ export default function Cart() {
             </p>
           </motion.div>
 
-          <div className="grid lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 space-y-4">
+          <div className="grid lg:grid-cols-3 gap-10">
+            <div className="lg:col-span-2 space-y-5">
               {cartItems.map((item, i) => {
                 const sizeLabel = item.selectedSize ? `Size: ${item.selectedSize}` : "No size selected";
 
@@ -90,54 +90,54 @@ export default function Cart() {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: i * 0.07 }}
                     exit={{ opacity: 0, x: -20 }}
-                    className="glass gold-border rounded-2xl p-4 sm:p-5 flex gap-4"
+                    className="glass gold-border rounded-2xl p-5 sm:p-6 flex gap-5"
                   >
                     <Link to={`/product/${item.id}`} className="flex-shrink-0">
-                      <div className="w-20 h-24 sm:w-24 sm:h-28 rounded-xl overflow-hidden bg-dark-50">
+                      <div className="w-24 h-28 sm:w-28 sm:h-32 rounded-xl overflow-hidden bg-charcoal">
                         <img src={item.image || item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
                       </div>
                     </Link>
 
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-start justify-between gap-3">
                         <div>
                           <Link to={`/product/${item.id}`}>
-                            <h3 className="font-poppins font-semibold text-white text-sm sm:text-base hover:text-gold transition-colors line-clamp-2">
+                            <h3 className="font-playfair font-semibold text-white text-base sm:text-lg hover:text-gold transition-colors line-clamp-2">
                               {item.name}
                             </h3>
                           </Link>
-                          <p className="text-white/30 text-xs font-inter mt-1">{sizeLabel}</p>
+                          <p className="text-white/30 text-xs font-inter mt-2">{sizeLabel}</p>
                         </div>
                         <button
                           onClick={() => handleRemove(item.id, item.selectedSize)}
-                          className="text-white/20 hover:text-red-400 transition-colors flex-shrink-0 p-1"
+                          className="text-white/20 hover:text-red-400 transition-colors flex-shrink-0 p-1.5"
                           aria-label="Remove item"
                         >
-                          <Trash2 size={16} />
+                          <Trash2 size={18} />
                         </button>
                       </div>
 
-                      <div className="flex items-center justify-between mt-4">
-                        <div className="flex items-center gap-2 bg-dark-100 rounded-xl px-3 py-1.5 border border-white/5">
+                      <div className="flex items-center justify-between mt-5">
+                        <div className="flex items-center gap-3 glass rounded-xl px-4 py-2 border border-white/10">
                           <button
                             onClick={() => updateQuantity(item.id, item.selectedSize, Number(item.quantity) - 1)}
                             className="text-white/40 hover:text-white transition-colors"
                             aria-label="Decrease quantity"
                           >
-                            <Minus size={14} />
+                            <Minus size={16} />
                           </button>
-                          <span className="font-poppins font-bold text-white text-sm w-6 text-center">{item.quantity}</span>
+                          <span className="font-poppins font-bold text-white text-sm w-8 text-center">{item.quantity}</span>
                           <button
                             onClick={() => updateQuantity(item.id, item.selectedSize, Number(item.quantity) + 1)}
                             className="text-white/40 hover:text-white transition-colors"
                             aria-label="Increase quantity"
                           >
-                            <Plus size={14} />
+                            <Plus size={16} />
                           </button>
                         </div>
 
                         <div className="text-right">
-                          <p className="font-poppins font-bold text-gold text-base">
+                          <p className="font-playfair font-bold gold-text text-lg">
                             PKR {(Number(item.price || 0) * Number(item.quantity || 0)).toLocaleString()}
                           </p>
                           {Number(item.quantity || 0) > 1 && (
@@ -155,35 +155,33 @@ export default function Cart() {
                   clearCart();
                   toast("Cart cleared", { icon: "🗑️", style: { background: "#1a1a1a", color: "#fff" } });
                 }}
-                className="text-white/30 hover:text-red-400 text-xs font-inter transition-colors flex items-center gap-1.5"
+                className="text-white/30 hover:text-red-400 text-sm font-inter transition-colors flex items-center gap-2 mt-2"
               >
-                <Trash2 size={13} />
+                <Trash2 size={14} />
                 Clear all items
               </button>
             </div>
 
-            <div className="space-y-4">
-              <div className="glass gold-border rounded-2xl p-5">
-                <div className="flex items-center gap-2 mb-4">
-                  <h3 className="font-poppins font-semibold text-white text-sm">Coupon</h3>
-                </div>
+            <div className="space-y-5">
+              <div className="glass gold-border rounded-2xl p-6">
+                <h3 className="font-playfair font-semibold text-white text-base mb-5">Coupon Code</h3>
                 {couponApplied ? (
                   <div className="flex items-center gap-2 text-green-400 text-sm font-inter">
                     <span>✓</span> AS10 applied — PKR {couponDiscount.toLocaleString()} off
                   </div>
                 ) : (
-                  <form onSubmit={handleCoupon} className="flex gap-2">
+                  <form onSubmit={handleCoupon} className="flex gap-3">
                     <input
                       type="text"
                       placeholder="Enter code (try: AS10)"
                       value={couponCode}
                       onChange={(e) => setCouponCode(e.target.value)}
-                      className="input-luxury flex-1 text-sm py-2.5"
+                      className="input-luxury flex-1 text-sm py-3"
                       id="coupon-input"
                     />
                     <button
                       type="submit"
-                      className="px-4 py-2.5 bg-gold text-primary font-poppins font-semibold text-sm rounded-xl hover:bg-gold-light transition-colors"
+                      className="px-5 py-3 bg-gold text-primary font-poppins font-semibold text-sm rounded-xl hover:bg-gold-light transition-colors"
                     >
                       Apply
                     </button>
@@ -191,18 +189,18 @@ export default function Cart() {
                 )}
               </div>
 
-              <div className="glass gold-border rounded-2xl p-5">
-                <h3 className="font-poppins font-semibold text-white text-sm mb-4">Shipping</h3>
+              <div className="glass gold-border rounded-2xl p-6">
+                <h3 className="font-playfair font-semibold text-white text-base mb-5">Shipping</h3>
                 <div className="flex justify-between text-sm font-inter text-white/50">
                   <span>Standard Delivery</span>
-                  <span>Free</span>
+                  <span className="text-gold">Free</span>
                 </div>
                 <p className="text-white/30 text-xs mt-3">Estimated: 3–5 business days</p>
               </div>
 
-              <div className="glass gold-border rounded-2xl p-5">
-                <h3 className="font-poppins font-bold text-white text-base mb-4">Order Summary</h3>
-                <div className="space-y-3 text-sm font-inter">
+              <div className="glass gold-border rounded-2xl p-6">
+                <h3 className="font-playfair font-bold text-white text-xl mb-6">Order Summary</h3>
+                <div className="space-y-4 text-sm font-inter">
                   <div className="flex justify-between text-white/50">
                     <span>Subtotal</span>
                     <span>PKR {cartSubtotal.toLocaleString()}</span>
@@ -217,21 +215,21 @@ export default function Cart() {
                     <span>Shipping</span>
                     <span>Free</span>
                   </div>
-                  <div className="h-px bg-white/5 my-3" />
-                  <div className="flex justify-between text-white font-poppins font-bold text-base">
+                  <div className="h-px bg-white/5 my-4" />
+                  <div className="flex justify-between text-white font-poppins font-bold text-lg">
                     <span>Grand Total</span>
-                    <span className="text-gold">PKR {grandTotal.toLocaleString()}</span>
+                    <span className="gold-text">PKR {grandTotal.toLocaleString()}</span>
                   </div>
                 </div>
 
-                <motion.div className="mt-5" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                <motion.div className="mt-6" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                   <Link to="/checkout" className="btn-gold w-full flex items-center justify-center gap-2 py-4 text-base">
                     Proceed to Checkout
                     <ArrowRight size={18} />
                   </Link>
                 </motion.div>
 
-                <Link to="/shop" className="block text-center text-white/30 hover:text-gold text-xs font-inter mt-4 transition-colors">
+                <Link to="/shop" className="block text-center text-white/30 hover:text-gold text-sm font-inter mt-5 transition-colors">
                   ← Continue Shopping
                 </Link>
               </div>

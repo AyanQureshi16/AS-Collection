@@ -55,12 +55,12 @@ export default function QuickView({ product, onClose }) {
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.9, opacity: 0 }}
           transition={{ type: "spring", damping: 20, stiffness: 200 }}
-          className="bg-dark-50 border border-white/10 rounded-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto"
+          className="bg-charcoal border border-white/10 rounded-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto"
           onClick={(e) => e.stopPropagation()}
         >
           <div className="grid md:grid-cols-2">
             {/* Image */}
-            <div className="h-80 md:h-full zoom-container rounded-l-2xl overflow-hidden bg-dark-100">
+            <div className="h-80 md:h-full zoom-container rounded-l-2xl overflow-hidden bg-charcoal">
               <img
                 src={product.images[0]}
                 alt={product.name}

@@ -82,7 +82,19 @@ function App() {
                 
                 <Route path="*" element={<NotFound />} />
               </Routes>
-              <Toaster position="bottom-center" />
+              <Toaster
+                position="bottom-center"
+                toastOptions={{
+                  style: {
+                    background: "#111111",
+                    color: "#F5F2EA",
+                    border: "1px solid rgba(201,168,106,0.2)",
+                    fontFamily: "Inter, sans-serif",
+                    fontSize: "13px",
+                  },
+                  iconTheme: { primary: "#C9A86A", secondary: "#080808" },
+                }}
+              />
             </CartProvider>
           </WishlistProvider>
         </CustomerProvider>

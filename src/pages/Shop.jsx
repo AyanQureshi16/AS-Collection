@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, SlidersHorizontal, Grid3X3, List, X, ChevronDown } from "lucide-react";
+import { Search, SlidersHorizontal, X, ChevronDown } from "lucide-react";
 import Layout from "../components/layout/Layout";
 import ProductCard from "../components/shop/ProductCard";
 import { ProductCardSkeleton } from "../components/ui/Skeleton";
@@ -29,7 +29,6 @@ export default function Shop() {
   );
   const [sort, setSort] = useState(searchParams.get("sort") || "default");
   const [priceRange, setPriceRange] = useState([0, 150000]);
-  const [viewMode, setViewMode] = useState("grid");
   const [currentPage, setCurrentPage] = useState(1);
   const [quickViewProduct, setQuickViewProduct] = useState(null);
   const [filterOpen, setFilterOpen] = useState(false);
@@ -41,15 +40,14 @@ export default function Shop() {
     allProducts.forEach((product) => {
       const key = String(product.category || "uncategorized").toLowerCase();
       const label = product.category || "Uncategorized";
-      if (!map.has(key)) {
-        map.set(key, { id: key, label });
-      }
+      if (!map.has(key)) map.set(key, { id: key, label });
     });
     return [{ id: "all", label: "All" }, ...Array.from(map.values())];
   }, [allProducts]);
 
   useEffect(() => {
     setSelectedCategory(searchParams.get("category") || "all");
+    setSort(searchParams.get("sort") || "default");
   }, [searchParams]);
 
   useEffect(() => {
@@ -108,120 +106,80 @@ export default function Shop() {
 
   return (
     <Layout>
-      {/* Page header */}
-      <div className="pt-28 pb-10 section-glow border-b border-white/5">
-        <div className="max-w-7xl mx-auto px-4 text-center">
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-gold font-inter text-xs tracking-[0.3em] uppercase mb-3"
-          >
-            Our Collection
-          </motion.p>
-          <motion.h1
+      {/* Editorial header */}
+      <div className="relative pt-32 pb-20 md:pt-40 md:pb-28 bg-ink">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_40%_at_50%_0%,rgba(201,168,106,0.05)_0%,transparent_60%)]" />
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="font-poppins font-black text-4xl md:text-5xl text-white mb-4"
+            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            className="max-w-2xl"
           >
-            Shop <span className="gold-text">All Products</span>
-          </motion.h1>
-          <p className="font-inter text-white/40 text-sm">
-            {filteredProducts.length} products
-          </p>
+            <p className="eyebrow mb-6">Shop</p>
+            <h1 className="section-title mb-6">The Collection</h1>
+            <p className="font-inter text-muted text-base md:text-lg leading-relaxed">
+              Timepieces designed to make every moment count. Explore our curated selection of premium watches.
+            </p>
+          </motion.div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-10">
-        {/* Top toolbar */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 mb-8">
-          {/* Search */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+        {/* Toolbar */}
+        <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-4 mb-10 pb-8 border-b border-white/[0.06]">
           <div className="relative flex-1 max-w-md">
-            <Search
-              size={16}
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30"
-            />
+            <Search size={16} strokeWidth={1.5} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted" />
             <input
               type="text"
-              placeholder="Search products..."
+              placeholder="Search timepieces..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="input-luxury pl-10 pr-10"
+              className="input-luxury pl-11 pr-10 py-3 text-sm"
               id="shop-search"
             />
             {search && (
-              <button
-                onClick={() => setSearch("")}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-white/30 hover:text-white"
-              >
+              <button onClick={() => setSearch("")} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted hover:text-ivory">
                 <X size={14} />
               </button>
             )}
           </div>
 
-          {/* Sort */}
           <div className="relative">
             <select
               value={sort}
               onChange={(e) => setSort(e.target.value)}
-              className="input-luxury pr-10 appearance-none cursor-pointer min-w-[180px]"
+              className="input-luxury pr-10 appearance-none cursor-pointer min-w-[200px] py-3 text-sm"
               id="sort-select"
             >
               {sortOptions.map((opt) => (
-                <option key={opt.value} value={opt.value} className="bg-dark-50">
+                <option key={opt.value} value={opt.value} className="bg-surface">
                   {opt.label}
                 </option>
               ))}
             </select>
-            <ChevronDown
-              size={14}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-white/30 pointer-events-none"
-            />
+            <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted pointer-events-none" />
           </div>
 
-          {/* View toggle */}
-          <div className="flex items-center gap-2 ml-auto">
-            <button
-              onClick={() => setViewMode("grid")}
-              className={`p-2.5 rounded-lg border transition-all ${
-                viewMode === "grid"
-                  ? "border-gold/50 text-gold bg-gold/10"
-                  : "border-white/10 text-white/40 hover:border-white/30"
-              }`}
-              aria-label="Grid view"
-            >
-              <Grid3X3 size={16} />
-            </button>
-            <button
-              onClick={() => setViewMode("list")}
-              className={`p-2.5 rounded-lg border transition-all ${
-                viewMode === "list"
-                  ? "border-gold/50 text-gold bg-gold/10"
-                  : "border-white/10 text-white/40 hover:border-white/30"
-              }`}
-              aria-label="List view"
-            >
-              <List size={16} />
-            </button>
-            <button
-              onClick={() => setFilterOpen(!filterOpen)}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-lg border border-white/10 text-white/60 hover:border-white/30 transition-all"
-            >
-              <SlidersHorizontal size={16} />
-              <span className="text-sm font-inter">Filters</span>
-            </button>
-          </div>
+          <button
+            onClick={() => setFilterOpen(!filterOpen)}
+            className="flex items-center gap-2 px-5 py-3 border border-white/[0.08] text-muted hover:text-ivory hover:border-white/20 transition-all text-sm font-inter"
+          >
+            <SlidersHorizontal size={16} strokeWidth={1.5} />
+            Filters
+          </button>
         </div>
 
-        {/* Category pills */}
-        <div className="flex flex-wrap gap-2 mb-6">
+        {/* Category filters */}
+        <div className="flex flex-wrap gap-2 mb-10">
           {categoryOptions.map((cat) => (
             <button
               key={cat.id}
               onClick={() => setSelectedCategory(cat.id)}
-              className={`px-4 py-2 rounded-full text-sm font-poppins font-medium transition-all border ${
+              className={`px-5 py-2 text-[11px] font-inter tracking-widest uppercase transition-all border ${
                 selectedCategory === cat.id
-                  ? "bg-gold text-primary border-gold"
-                  : "border-white/10 text-white/50 hover:border-gold/30 hover:text-white"
+                  ? "bg-champagne text-ink border-champagne"
+                  : "border-white/[0.08] text-muted hover:border-champagne/30 hover:text-ivory"
               }`}
             >
               {cat.label}
@@ -229,21 +187,21 @@ export default function Shop() {
           ))}
         </div>
 
-        {/* Filter drawer */}
+        {/* Filter panel */}
         <AnimatePresence>
           {filterOpen && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              className="overflow-hidden mb-6"
+              className="overflow-hidden mb-10"
             >
-              <div className="glass gold-border rounded-2xl p-6">
-                <h3 className="font-poppins font-semibold text-white mb-4">Price Range</h3>
-                <div className="space-y-3">
+              <div className="border border-white/[0.06] p-6 bg-surface">
+                <h3 className="font-inter text-[10px] tracking-widest uppercase text-muted mb-6">Price Range</h3>
+                <div className="space-y-4 max-w-md">
                   <div className="flex justify-between text-sm font-inter">
-                    <span className="text-white/40">PKR {priceRange[0].toLocaleString()}</span>
-                    <span className="text-gold font-semibold">PKR {priceRange[1].toLocaleString()}</span>
+                    <span className="text-muted">PKR {priceRange[0].toLocaleString()}</span>
+                    <span className="text-champagne">PKR {priceRange[1].toLocaleString()}</span>
                   </div>
                   <input
                     type="range"
@@ -252,7 +210,7 @@ export default function Shop() {
                     step="1000"
                     value={priceRange[1]}
                     onChange={(e) => setPriceRange([priceRange[0], Number(e.target.value)])}
-                    className="w-full accent-gold"
+                    className="w-full"
                   />
                 </div>
               </div>
@@ -260,56 +218,42 @@ export default function Shop() {
           )}
         </AnimatePresence>
 
-        {/* Product grid */}
+        {/* Product count */}
+        <p className="font-inter text-xs text-muted mb-8 tracking-wide">
+          {filteredProducts.length} timepiece{filteredProducts.length !== 1 ? "s" : ""}
+        </p>
+
+        {/* Grid — editorial 3-column */}
         {isLoading ? (
-          <div className={`grid gap-5 ${viewMode === "grid" ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" : "grid-cols-1 sm:grid-cols-2"}`}>
-            {Array.from({ length: 8 }).map((_, i) => (
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+            {Array.from({ length: 6 }).map((_, i) => (
               <ProductCardSkeleton key={i} />
             ))}
           </div>
         ) : filteredProducts.length === 0 ? (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-center py-24"
-          >
-            <div className="text-6xl mb-4">🔍</div>
-            <h3 className="font-poppins font-bold text-white text-xl mb-2">No Products Found</h3>
-            <p className="text-white/40 font-inter text-sm">
-              Try adjusting your filters or search term.
-            </p>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-24">
+            <h3 className="font-display text-2xl text-ivory mb-3">No Timepieces Found</h3>
+            <p className="text-muted font-inter text-sm">Try adjusting your filters or search term.</p>
           </motion.div>
         ) : (
-          <div
-            className={`grid gap-5 ${
-              viewMode === "grid"
-                ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-                : "grid-cols-1 sm:grid-cols-2"
-            }`}
-          >
-            <AnimatePresence>
-              {paginatedProducts.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  onQuickView={setQuickViewProduct}
-                />
-              ))}
-            </AnimatePresence>
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+            {paginatedProducts.map((product) => (
+              <ProductCard key={product.id} product={product} onQuickView={setQuickViewProduct} />
+            ))}
           </div>
         )}
 
         {/* Pagination */}
         {totalPages > 1 && !isLoading && (
-          <div className="flex justify-center items-center gap-2 mt-12">
+          <div className="flex justify-center items-center gap-2 mt-16">
             {Array.from({ length: totalPages }).map((_, i) => (
               <button
                 key={i}
                 onClick={() => setCurrentPage(i + 1)}
-                className={`w-10 h-10 rounded-full font-poppins font-semibold text-sm transition-all ${
+                className={`w-10 h-10 font-inter text-xs transition-all border ${
                   currentPage === i + 1
-                    ? "bg-gold text-primary"
-                    : "border border-white/10 text-white/40 hover:border-gold/30 hover:text-white"
+                    ? "bg-champagne text-ink border-champagne"
+                    : "border-white/[0.08] text-muted hover:border-champagne/30 hover:text-ivory"
                 }`}
               >
                 {i + 1}

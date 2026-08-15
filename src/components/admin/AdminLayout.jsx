@@ -79,15 +79,15 @@ export default function AdminLayout() {
           {sidebarOpen ? (
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-gold flex items-center justify-center">
-                <span className="font-poppins font-black text-primary text-xs">AS</span>
+                <span className="font-poppins font-black text-primary text-xs">Z</span>
               </div>
               <span className={`font-poppins font-bold text-sm ${isDark ? "text-white" : "text-slate-900"}`}>
-                Admin Panel
+                ZELMIOR Admin
               </span>
             </div>
           ) : (
             <div className="w-8 h-8 rounded-lg bg-gold flex items-center justify-center">
-              <span className="font-poppins font-black text-primary text-xs">AS</span>
+              <span className="font-poppins font-black text-primary text-xs">Z</span>
             </div>
           )}
         </div>
@@ -168,10 +168,10 @@ export default function AdminLayout() {
             <div className={`h-16 flex items-center justify-between px-6 border-b ${isDark ? "border-white/5" : "border-slate-200"}`}>
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-lg bg-gold flex items-center justify-center">
-                  <span className="font-poppins font-black text-primary text-xs">AS</span>
+                  <span className="font-poppins font-black text-primary text-xs">Z</span>
                 </div>
                 <span className={`font-poppins font-bold text-sm ${isDark ? "text-white" : "text-slate-900"}`}>
-                  Admin Panel
+                  ZELMIOR Admin
                 </span>
               </div>
               <button

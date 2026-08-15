@@ -1,12 +1,12 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { Heart, Eye, ShoppingBag, Star } from "lucide-react";
+import { Heart, ShoppingBag } from "lucide-react";
 import { useCart } from "../../context/CartContext";
 import { useWishlist } from "../../context/WishlistContext";
 import { getProductStockStatus, normalizeProductStock } from "../../utils/productStorage";
 import toast from "react-hot-toast";
 
-export default function ProductCard({ product, onQuickView }) {
+export default function ProductCard({ product, onQuickView, variant = "default" }) {
   const { addToCart, isInCart } = useCart();
   const { toggleWishlist, isWishlisted } = useWishlist();
   const normalizedProduct = product || {};
@@ -28,29 +28,18 @@ export default function ProductCard({ product, onQuickView }) {
   const handleAddToCart = (e) => {
     e.preventDefault();
     e.stopPropagation();
-
     if (isOutOfStock) {
-      toast.error("This product is out of stock.", {
-        style: { background: "#1a1a1a", color: "#fff" },
-      });
+      toast.error("This product is out of stock.", { style: { background: "#111", color: "#F5F2EA" } });
       return;
     }
-
     const added = addToCart(normalizedProduct, sizes[0] || "", 1);
     if (!added) {
-      toast.error("Only available stock is left in the cart.", {
-        style: { background: "#1a1a1a", color: "#fff" },
-      });
+      toast.error("Only available stock is left in the cart.", { style: { background: "#111", color: "#F5F2EA" } });
       return;
     }
-
     toast.success(`${normalizedProduct.name} added to cart!`, {
-      style: {
-        background: "#1a1a1a",
-        color: "#fff",
-        border: "1px solid rgba(212,175,55,0.3)",
-      },
-      iconTheme: { primary: "#D4AF37", secondary: "#0A0A0A" },
+      style: { background: "#111", color: "#F5F2EA", border: "1px solid rgba(201,168,106,0.25)" },
+      iconTheme: { primary: "#C9A86A", secondary: "#080808" },
     });
   };
 
@@ -59,155 +48,127 @@ export default function ProductCard({ product, onQuickView }) {
     e.stopPropagation();
     toggleWishlist(normalizedProduct);
     toast(wishlisted ? "Removed from wishlist" : "Added to wishlist!", {
-      icon: wishlisted ? "💔" : "❤️",
-      style: {
-        background: "#1a1a1a",
-        color: "#fff",
-        border: "1px solid rgba(212,175,55,0.3)",
-      },
+      style: { background: "#111", color: "#F5F2EA", border: "1px solid rgba(201,168,106,0.25)" },
     });
   };
 
+  const isFeatured = variant === "featured";
+  const isCompact = variant === "compact";
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
+    <motion.article
+      initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-40px" }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
-      whileHover={{ y: -4 }}
-      className="group relative card-luxury"
+      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+      className="group relative"
     >
-      {/* Badges */}
-      <div className="absolute top-3 left-3 z-10 flex flex-col gap-1.5">
-        {badges.includes("Sale") && (
-          <span className="bg-red-500 text-white text-[10px] font-poppins font-bold px-2 py-0.5 rounded-full">
-            -{normalizedProduct.discount || 0}%
-          </span>
-        )}
-        {badges.includes("New") && (
-          <span className="bg-gold text-primary text-[10px] font-poppins font-bold px-2 py-0.5 rounded-full">
-            NEW
-          </span>
-        )}
-        {badges.includes("Best Seller") && (
-          <span className="bg-white/10 backdrop-blur-md text-white text-[10px] font-poppins font-bold px-2 py-0.5 rounded-full border border-white/10">
-            ⭐ BESTSELLER
-          </span>
-        )}
-      </div>
-
-      {/* Action buttons */}
-      <div className="absolute top-3 right-3 z-10 flex flex-col gap-2">
-        <motion.button
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          onClick={handleWishlist}
-          className={`w-8 h-8 rounded-full glass flex items-center justify-center transition-all ${
-            wishlisted ? "text-red-400 border-red-400/30" : "text-white/60 gold-border"
-          }`}
-          aria-label="Toggle wishlist"
-        >
-          <Heart size={14} fill={wishlisted ? "currentColor" : "none"} />
-        </motion.button>
-        {onQuickView && (
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              onQuickView(normalizedProduct);
-            }}
-            className="w-8 h-8 rounded-full glass gold-border flex items-center justify-center text-white/60 hover:text-gold transition-colors"
-            aria-label="Quick view"
-          >
-            <Eye size={14} />
-          </motion.button>
-        )}
-      </div>
-
       <Link to={`/product/${normalizedProduct.id}`} className="block">
-        {/* Image */}
-        <div className="zoom-container h-64 sm:h-72 bg-dark-50 overflow-hidden">
+        {/* Image container */}
+        <div
+          className={`relative overflow-hidden bg-surface ${
+            isFeatured ? "aspect-[3/4]" : isCompact ? "aspect-square" : "aspect-[4/5]"
+          }`}
+        >
           <img
             src={images[0]}
             alt={normalizedProduct.name}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             loading="lazy"
           />
-          {/* Hover overlay with second image */}
+
           {images[1] && (
             <img
               src={images[1]}
-              alt={`${normalizedProduct.name} alternate`}
+              alt={`${normalizedProduct.name} alternate view`}
               className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+              loading="lazy"
             />
           )}
-        </div>
 
-        {/* Info */}
-        <div className="p-4">
-          <p className="text-white/30 text-xs font-inter capitalize mb-1">
-            {normalizedProduct.subcategory || normalizedProduct.category}
-          </p>
-          <h3 className="font-poppins font-semibold text-white text-sm line-clamp-2 mb-2 group-hover:text-gold transition-colors">
-            {normalizedProduct.name}
-          </h3>
+          {/* Dark overlay on hover */}
+          <div className="absolute inset-0 bg-ink/0 group-hover:bg-ink/30 transition-colors duration-400" />
 
-          {/* Rating */}
-          <div className="flex items-center gap-1.5 mb-3">
-            <div className="flex">
-              {[1, 2, 3, 4, 5].map((s) => (
-                <Star
-                  key={s}
-                  size={11}
-                  className={s <= Math.round(normalizedProduct.rating || 0) ? "text-gold fill-gold" : "text-white/20"}
-                />
-              ))}
-            </div>
-            <span className="text-white/30 text-xs">({normalizedProduct.reviewCount || 0})</span>
+          {/* View Watch label */}
+          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-400">
+            <span className="font-inter text-[10px] tracking-[0.35em] uppercase text-ivory border border-ivory/40 px-6 py-3">
+              View Watch
+            </span>
           </div>
 
-          {/* Price */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="font-poppins font-bold text-gold text-base">
-                PKR {(normalizedProduct.price || 0).toLocaleString()}
-              </span>
-              {normalizedProduct.oldPrice && (
-                <span className="font-inter text-white/30 text-xs line-through">
-                  PKR {Number(normalizedProduct.oldPrice).toLocaleString()}
+          {/* Badges — minimal */}
+          {(badges.includes("New") || badges.includes("Sale")) && (
+            <div className="absolute top-4 left-4 flex gap-2">
+              {badges.includes("New") && (
+                <span className="bg-champagne text-ink text-[9px] font-inter tracking-widest uppercase px-3 py-1">
+                  New
+                </span>
+              )}
+              {badges.includes("Sale") && (
+                <span className="bg-ivory/10 backdrop-blur text-ivory text-[9px] font-inter tracking-widest uppercase px-3 py-1 border border-white/10">
+                  Sale
                 </span>
               )}
             </div>
-          </div>
-          <div className="mt-2 flex items-center justify-between text-[10px] uppercase tracking-[0.18em]">
-            <span className={isOutOfStock ? "text-red-400" : stockStatus === "Limited Stock" ? "text-yellow-400" : "text-green-400"}>
-              {stockStatus}
+          )}
+
+          {/* Wishlist */}
+          <button
+            onClick={handleWishlist}
+            className={`absolute top-4 right-4 p-2 opacity-0 group-hover:opacity-100 transition-all duration-300 ${
+              wishlisted ? "opacity-100 text-champagne" : "text-ivory/70 hover:text-champagne"
+            }`}
+            aria-label="Toggle wishlist"
+          >
+            <Heart size={16} strokeWidth={1.5} fill={wishlisted ? "currentColor" : "none"} />
+          </button>
+        </div>
+
+        {/* Product info — shifts up slightly on hover */}
+        <div className="pt-5 pb-2 transition-transform duration-400 group-hover:-translate-y-1">
+          <p className="font-inter text-[10px] tracking-widest uppercase text-muted mb-2 capitalize">
+            {normalizedProduct.subcategory || normalizedProduct.category}
+          </p>
+          <h3 className="font-display text-lg md:text-xl text-ivory font-light leading-snug mb-2 group-hover:text-champagne transition-colors duration-400">
+            {normalizedProduct.name}
+          </h3>
+          <div className="flex items-baseline gap-3">
+            <span className="font-inter text-sm text-champagne">
+              PKR {(normalizedProduct.price || 0).toLocaleString()}
             </span>
+            {normalizedProduct.oldPrice && (
+              <span className="font-inter text-xs text-muted line-through">
+                PKR {Number(normalizedProduct.oldPrice).toLocaleString()}
+              </span>
+            )}
           </div>
+          {!isCompact && (
+            <p className={`font-inter text-[10px] tracking-wider uppercase mt-2 ${
+              isOutOfStock ? "text-red-400/80" : stockStatus === "Limited Stock" ? "text-yellow-500/80" : "text-muted/60"
+            }`}>
+              {stockStatus}
+            </p>
+          )}
         </div>
       </Link>
 
-      {/* Add to cart button — shows on hover */}
-      <div className="px-4 pb-4">
-        <motion.button
-          whileHover={isOutOfStock ? undefined : { scale: 1.02 }}
-          whileTap={isOutOfStock ? undefined : { scale: 0.98 }}
+      {/* Add to cart — appears on hover */}
+      <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-400">
+        <button
           onClick={handleAddToCart}
           disabled={isOutOfStock}
-          className={`w-full py-2.5 rounded-xl font-poppins font-semibold text-sm flex items-center justify-center gap-2 transition-all duration-300 ${
+          className={`w-full py-3 font-inter text-[10px] tracking-widest uppercase flex items-center justify-center gap-2 transition-all duration-300 border ${
             isOutOfStock
-              ? "bg-white/5 text-white/35 border border-white/10 cursor-not-allowed"
+              ? "border-white/[0.06] text-muted/40 cursor-not-allowed"
               : inCart
-                ? "bg-gold/20 text-gold border border-gold/30"
-                : "bg-white/5 hover:bg-gold hover:text-primary text-white border border-white/10 hover:border-transparent"
+                ? "border-champagne/30 text-champagne bg-champagne/5"
+                : "border-white/[0.08] text-ivory hover:bg-champagne hover:text-ink hover:border-champagne"
           }`}
         >
-          <ShoppingBag size={15} />
+          <ShoppingBag size={13} strokeWidth={1.5} />
           {isOutOfStock ? "Out of Stock" : inCart ? "In Cart" : "Add to Cart"}
-        </motion.button>
+        </button>
       </div>
-    </motion.div>
+    </motion.article>
   );
 }

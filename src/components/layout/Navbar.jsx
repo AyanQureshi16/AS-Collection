@@ -1,14 +1,13 @@
 import { useState, useEffect } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShoppingBag, Menu, X, Search, Heart } from "lucide-react";
+import { ShoppingBag, Menu, X, Search, User } from "lucide-react";
 import { useCart } from "../../context/CartContext";
-import { useWishlist } from "../../context/WishlistContext";
+import SearchOverlay from "./SearchOverlay";
 
 const navLinks = [
-  { to: "/", label: "Home" },
-  { to: "/shop", label: "Shop" },
-  { to: "/categories", label: "Categories" },
+  { to: "/shop", label: "Collection" },
+  { to: "/shop?sort=new", label: "New Arrivals" },
   { to: "/about", label: "About" },
   { to: "/contact", label: "Contact" },
 ];
@@ -16,67 +15,67 @@ const navLinks = [
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const { cartCount } = useCart();
-  const { wishlist } = useWishlist();
   const location = useLocation();
+  const isHome = location.pathname === "/";
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 30);
+    const onScroll = () => setScrolled(window.scrollY > 40);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Close mobile menu on route change
   useEffect(() => {
     setMobileOpen(false);
   }, [location.pathname]);
 
+  useEffect(() => {
+    document.body.style.overflow = mobileOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [mobileOpen]);
+
+  const navBg = scrolled || !isHome
+    ? "glass-nav py-3"
+    : "bg-transparent py-5";
+
   return (
     <>
       <motion.nav
-        initial={{ y: -80 }}
-        animate={{ y: 0 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-          scrolled
-            ? "bg-black/90 backdrop-blur-xl border-b border-white/5 shadow-luxury"
-            : "bg-transparent"
-        }`}
+        initial={{ y: -60, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${navBg}`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-18 py-4">
-            {/* Logo */}
-            <Link to="/" className="flex items-center gap-2 group">
-              <div className="w-10 h-10 rounded-lg bg-gold flex items-center justify-center">
-                <span className="font-poppins font-black text-primary text-sm">AS</span>
-              </div>
-              <div className="flex flex-col">
-                <span className="font-poppins font-bold text-white text-lg leading-none">
-                  AS Collection
-                </span>
-                <span className="text-gold text-[10px] font-inter tracking-[0.2em] uppercase">
-                  Luxury Fashion
-                </span>
-              </div>
+          <div className="flex items-center justify-between">
+            {/* Wordmark */}
+            <Link to="/" className="group flex flex-col" aria-label="ZELMIOR Home">
+              <span className="font-display text-xl md:text-2xl tracking-[0.25em] text-ivory font-light leading-none group-hover:text-champagne transition-colors duration-400">
+                ZELMIOR
+              </span>
+              <span className="font-inter text-[9px] tracking-[0.35em] uppercase text-muted mt-1 hidden sm:block">
+                Premium Watches
+              </span>
             </Link>
 
-            {/* Desktop Nav */}
-            <div className="hidden md:flex items-center gap-8">
+            {/* Desktop Nav — centered */}
+            <div className="hidden md:flex items-center gap-10 absolute left-1/2 -translate-x-1/2">
               {navLinks.map((link) => (
                 <NavLink
                   key={link.to}
                   to={link.to}
-                  end={link.to === "/"}
                   className={({ isActive }) =>
-                    `font-inter text-sm font-medium transition-all duration-200 relative group
-                    ${isActive ? "text-gold" : "text-white/70 hover:text-white"}`
+                    `font-inter text-[11px] tracking-widest uppercase transition-colors duration-300 relative group ${
+                      isActive ? "text-champagne" : "text-muted hover:text-ivory"
+                    }`
                   }
                 >
                   {({ isActive }) => (
                     <>
                       {link.label}
                       <span
-                        className={`absolute -bottom-1 left-0 h-0.5 bg-gold transition-all duration-300 ${
+                        className={`absolute -bottom-1.5 left-0 h-px bg-champagne transition-all duration-400 ${
                           isActive ? "w-full" : "w-0 group-hover:w-full"
                         }`}
                       />
@@ -87,34 +86,29 @@ export default function Navbar() {
             </div>
 
             {/* Actions */}
-            <div className="flex items-center gap-3">
-              <Link
-                to="/shop"
-                className="hidden sm:flex p-2 text-white/60 hover:text-white transition-colors"
+            <div className="flex items-center gap-1 sm:gap-2">
+              <button
+                onClick={() => setSearchOpen(true)}
+                className="p-2.5 text-muted hover:text-ivory transition-colors duration-300"
                 aria-label="Search"
               >
-                <Search size={20} />
-              </Link>
+                <Search size={18} strokeWidth={1.5} />
+              </button>
 
               <Link
-                to="/wishlist"
-                className="hidden sm:flex p-2 text-white/60 hover:text-white transition-colors relative"
-                aria-label="Wishlist"
+                to="/contact"
+                className="hidden sm:flex p-2.5 text-muted hover:text-ivory transition-colors duration-300"
+                aria-label="Account"
               >
-                <Heart size={20} />
-                {wishlist.length > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-gold rounded-full text-[10px] text-primary font-bold flex items-center justify-center">
-                    {wishlist.length}
-                  </span>
-                )}
+                <User size={18} strokeWidth={1.5} />
               </Link>
 
               <Link
                 to="/cart"
-                className="flex p-2 text-white/60 hover:text-white transition-colors relative"
+                className="p-2.5 text-muted hover:text-ivory transition-colors duration-300 relative"
                 aria-label="Shopping Cart"
               >
-                <ShoppingBag size={20} />
+                <ShoppingBag size={18} strokeWidth={1.5} />
                 <AnimatePresence>
                   {cartCount > 0 && (
                     <motion.span
@@ -122,7 +116,7 @@ export default function Navbar() {
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
                       exit={{ scale: 0 }}
-                      className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-gold rounded-full text-[10px] text-primary font-bold flex items-center justify-center"
+                      className="absolute top-1 right-1 w-4 h-4 bg-champagne text-ink text-[9px] font-inter font-semibold flex items-center justify-center"
                     >
                       {cartCount > 9 ? "9+" : cartCount}
                     </motion.span>
@@ -130,72 +124,90 @@ export default function Navbar() {
                 </AnimatePresence>
               </Link>
 
-              {/* Mobile menu toggle */}
               <button
-                className="md:hidden p-2 text-white/60 hover:text-white transition-colors"
+                className="md:hidden p-2.5 text-muted hover:text-ivory transition-colors"
                 onClick={() => setMobileOpen(!mobileOpen)}
                 aria-label="Toggle menu"
+                aria-expanded={mobileOpen}
               >
-                {mobileOpen ? <X size={22} /> : <Menu size={22} />}
+                {mobileOpen ? <X size={20} strokeWidth={1.5} /> : <Menu size={20} strokeWidth={1.5} />}
               </button>
             </div>
           </div>
         </div>
       </motion.nav>
 
-      {/* Mobile Menu */}
+      {/* Mobile drawer */}
       <AnimatePresence>
         {mobileOpen && (
-          <motion.div
-            initial={{ opacity: 0, x: "100%" }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: "100%" }}
-            transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed inset-0 z-40 bg-black/98 backdrop-blur-2xl md:hidden"
-          >
-            <div className="flex flex-col items-center justify-center h-full gap-8">
-              {navLinks.map((link, i) => (
-                <motion.div
-                  key={link.to}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.07 }}
-                >
-                  <NavLink
-                    to={link.to}
-                    end={link.to === "/"}
-                    className={({ isActive }) =>
-                      `font-poppins text-3xl font-semibold transition-colors ${
-                        isActive ? "text-gold" : "text-white/70 hover:text-white"
-                      }`
-                    }
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="fixed inset-0 z-40 bg-ink/80 backdrop-blur-sm md:hidden"
+              onClick={() => setMobileOpen(false)}
+            />
+            <motion.div
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "spring", damping: 30, stiffness: 300 }}
+              className="fixed top-0 right-0 bottom-0 z-50 w-full max-w-sm bg-surface border-l border-white/[0.06] md:hidden flex flex-col"
+            >
+              <div className="flex items-center justify-between p-6 border-b border-white/[0.06]">
+                <span className="font-display text-xl tracking-[0.2em] text-ivory">ZELMIOR</span>
+                <button onClick={() => setMobileOpen(false)} aria-label="Close menu" className="text-muted hover:text-ivory p-2">
+                  <X size={20} />
+                </button>
+              </div>
+
+              <nav className="flex-1 flex flex-col justify-center px-8 gap-8">
+                {navLinks.map((link, i) => (
+                  <motion.div
+                    key={link.to}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.08 }}
                   >
-                    {link.label}
-                  </NavLink>
-                </motion.div>
-              ))}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.4 }}
-                className="flex gap-6 mt-4"
-              >
-                <Link to="/shop" onClick={() => setMobileOpen(false)} className="text-white/50 hover:text-white">
-                  <Search size={24} />
-                </Link>
-                <Link to="/cart" onClick={() => setMobileOpen(false)} className="text-white/50 hover:text-white relative">
-                  <ShoppingBag size={24} />
+                    <NavLink
+                      to={link.to}
+                      className={({ isActive }) =>
+                        `font-display text-3xl font-light tracking-wide transition-colors ${
+                          isActive ? "text-champagne" : "text-ivory/70 hover:text-ivory"
+                        }`
+                      }
+                    >
+                      {link.label}
+                    </NavLink>
+                  </motion.div>
+                ))}
+              </nav>
+
+              <div className="p-8 border-t border-white/[0.06] flex gap-6">
+                <button
+                  onClick={() => { setSearchOpen(true); setMobileOpen(false); }}
+                  className="text-muted hover:text-ivory transition-colors"
+                  aria-label="Search"
+                >
+                  <Search size={22} strokeWidth={1.5} />
+                </button>
+                <Link to="/cart" onClick={() => setMobileOpen(false)} className="text-muted hover:text-ivory relative">
+                  <ShoppingBag size={22} strokeWidth={1.5} />
                   {cartCount > 0 && (
-                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-gold rounded-full text-[10px] text-primary font-bold flex items-center justify-center">
+                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-champagne text-ink text-[9px] font-semibold flex items-center justify-center">
                       {cartCount}
                     </span>
                   )}
                 </Link>
-              </motion.div>
-            </div>
-          </motion.div>
+              </div>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
+
+      <SearchOverlay isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
     </>
   );
 }
