@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Search, RefreshCw, Download, Plus, ChevronRight } from "lucide-react";
+import { Search, RefreshCw, Download, Plus, ChevronRight, X } from "lucide-react";
 import ProductSummaryCard from "../../components/admin/ProductSummaryCard";
 import StatusBadge from "../../components/admin/StatusBadge";
 import StockBadge from "../../components/admin/StockBadge";
@@ -139,6 +139,7 @@ export default function Products() {
       status: "Draft",
       featured: false,
       image: "",
+      images: [""],
       description: "",
     });
     setShowForm(true);
@@ -146,7 +147,10 @@ export default function Products() {
 
   const openEditForm = (product) => {
     setFormMode("edit");
-    setFormData({ ...product });
+    setFormData({
+      ...product,
+      images: product.images && product.images.length > 0 ? product.images : (product.image ? [product.image] : []),
+    });
     setShowForm(true);
   };
 
@@ -193,7 +197,8 @@ export default function Products() {
       stock: Number(formData.stock) || 0,
       status: formData.status,
       featured: Boolean(formData.featured),
-      image: formData.image || "",
+      image: formData.images?.[0] || formData.image || "",
+      images: formData.images && formData.images.length > 0 ? formData.images : (formData.image ? [formData.image] : []),
       description: formData.description || "",
       createdAt: formData.createdAt || new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -599,9 +604,47 @@ export default function Products() {
                 <input id="product-featured" type="checkbox" checked={Boolean(formData.featured)} onChange={(e) => setFormData((s) => ({ ...s, featured: e.target.checked }))} />
               </div>
 
+              {/* Multi-Image Management */}
               <div className="md:col-span-2">
-                <label htmlFor="product-image" className="text-white/70 text-sm block mb-1">Image URL</label>
-                <input id="product-image" value={formData.image} onChange={(e) => setFormData((s) => ({ ...s, image: e.target.value }))} className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white" />
+                <label className="text-white/70 text-sm block mb-2">Product Images</label>
+                <div className="space-y-3">
+                  {(formData.images || []).map((img, index) => (
+                    <div key={index} className="flex gap-2 items-center">
+                      <input
+                        value={img}
+                        onChange={(e) => {
+                          const newImages = [...(formData.images || [])];
+                          newImages[index] = e.target.value;
+                          setFormData((s) => ({ ...s, images: newImages }));
+                        }}
+                        className="flex-1 px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm"
+                        placeholder={`Image ${index + 1} URL`}
+                      />
+                      {index > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newImages = (formData.images || []).filter((_, i) => i !== index);
+                            setFormData((s) => ({ ...s, images: newImages }));
+                          }}
+                          className="px-3 py-2 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30 text-sm"
+                        >
+                          Remove
+                        </button>
+                      )}
+                      {index === 0 && (
+                        <span className="text-champagne text-xs px-2 py-1 bg-champagne/10 rounded">Primary</span>
+                      )}
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => setFormData((s) => ({ ...s, images: [...(s.images || []), "" ] }))}
+                    className="text-champagne text-sm hover:text-champagne/80 flex items-center gap-1"
+                  >
+                    <Plus size={14} /> Add Image
+                  </button>
+                </div>
               </div>
 
               <div className="md:col-span-2">

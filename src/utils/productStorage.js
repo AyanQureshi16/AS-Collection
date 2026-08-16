@@ -14,6 +14,7 @@ const INITIAL_PRODUCTS = [
     featured: true,
     lastUpdated: "2 hours ago",
     image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80",
+    images: ["https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=80"],
   },
   {
     id: 2,
@@ -28,6 +29,12 @@ const INITIAL_PRODUCTS = [
     featured: true,
     lastUpdated: "5 hours ago",
     image: "https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=100&q=80",
+    images: [
+      "https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=800&q=80",
+      "https://images.unsplash.com/photo-1522312346375-d1a52e2b99b3?w=800&q=80",
+      "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=800&q=80",
+      "https://images.unsplash.com/photo-1548171915-e79a380a2a4b?w=800&q=80",
+    ],
   },
   {
     id: 4,
@@ -42,6 +49,7 @@ const INITIAL_PRODUCTS = [
     featured: true,
     lastUpdated: "3 days ago",
     image: "https://images.unsplash.com/photo-1585487000160-6ebcfceb0d03?w=100&q=80",
+    images: ["https://images.unsplash.com/photo-1585487000160-6ebcfceb0d03?w=800&q=80"],
   },
   {
     id: 5,
@@ -56,6 +64,7 @@ const INITIAL_PRODUCTS = [
     featured: false,
     lastUpdated: "1 week ago",
     image: "https://images.unsplash.com/photo-1617137968427-85924c800a22?w=100&q=80",
+    images: ["https://images.unsplash.com/photo-1617137968427-85924c800a22?w=800&q=80"],
   },
   {
     id: 6,
@@ -70,6 +79,11 @@ const INITIAL_PRODUCTS = [
     featured: true,
     lastUpdated: "2 weeks ago",
     image: "https://images.unsplash.com/photo-1522312346375-d1a52e2b99b3?w=100&q=80",
+    images: [
+      "https://images.unsplash.com/photo-1522312346375-d1a52e2b99b3?w=800&q=80",
+      "https://images.unsplash.com/photo-1587836374828-4dbafa94cf0e?w=800&q=80",
+      "https://images.unsplash.com/photo-1548171915-e79a380a2a4b?w=800&q=80",
+    ],
   },
   {
     id: 7,
@@ -84,8 +98,69 @@ const INITIAL_PRODUCTS = [
     featured: false,
     lastUpdated: "2 weeks ago",
     image: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=100&q=80",
+    images: ["https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=800&q=80"],
+  },
+  {
+    id: 8,
+    name: "Chronograph Prestige Watch",
+    category: "Watches",
+    brand: "AS Collection",
+    sku: "SKU-008",
+    price: 18500,
+    salePrice: null,
+    stock: 18,
+    status: "Active",
+    featured: true,
+    lastUpdated: "1 week ago",
+    image: "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=100&q=80",
+    images: [
+      "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=800&q=80",
+      "https://images.unsplash.com/photo-1524805444758-089113d48a6d?w=800&q=80",
+      "https://images.unsplash.com/photo-1509941943102-10c232557cbd?w=800&q=80",
+      "https://images.unsplash.com/photo-1533139502658-0198f920d8e8?w=800&q=80",
+    ],
+  },
+  {
+    id: 9,
+    name: "Classic Dive Watch",
+    category: "Watches",
+    brand: "AS Collection",
+    sku: "SKU-009",
+    price: 12000,
+    salePrice: 10500,
+    stock: 22,
+    status: "Active",
+    featured: true,
+    lastUpdated: "3 days ago",
+    image: "https://images.unsplash.com/photo-1548171915-e79a380a2a4b?w=100&q=80",
+    images: [
+      "https://images.unsplash.com/photo-1548171915-e79a380a2a4b?w=800&q=80",
+      "https://images.unsplash.com/photo-1539874754764-5a96559165b0?w=800&q=80",
+      "https://images.unsplash.com/photo-1509941943102-10c232557cbd?w=800&q=80",
+    ],
   },
 ];
+
+// Normalize product images to always return an array
+export const getProductImages = (product) => {
+  if (!product) return [];
+  
+  // If images array exists and is valid, use it
+  if (Array.isArray(product.images) && product.images.length > 0) {
+    const validImages = product.images.filter(img => img && typeof img === 'string' && img.trim() !== '');
+    if (validImages.length > 0) {
+      // Remove duplicates
+      return [...new Set(validImages)];
+    }
+  }
+  
+  // Fall back to single image field
+  if (product.image && typeof product.image === 'string' && product.image.trim() !== '') {
+    return [product.image];
+  }
+  
+  return [];
+};
 
 export const getStoredProducts = () => {
   try {

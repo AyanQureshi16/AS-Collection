@@ -12,20 +12,20 @@ import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
 import { useProducts } from "../context/ProductContext";
 import { useSettings } from "../context/SettingsContext";
-import { getProductStockStatus, normalizeProductStock } from "../utils/productStorage";
+import { getProductStockStatus, normalizeProductStock, getProductImages } from "../utils/productStorage";
 import toast from "react-hot-toast";
 
 function Accordion({ title, children, defaultOpen = false }) {
   const [open, setOpen] = useState(defaultOpen);
 
   return (
-    <div className="border-b border-white/[0.06]">
+    <div className="border-b border-themed">
       <button
         onClick={() => setOpen(!open)}
         className="w-full flex items-center justify-between py-5 text-left group"
         aria-expanded={open}
       >
-        <span className="font-inter text-[11px] tracking-widest uppercase text-ivory group-hover:text-champagne transition-colors">
+        <span className="font-inter text-[11px] tracking-widest uppercase text-primary group-hover:text-champagne transition-colors">
           {title}
         </span>
         <ChevronDown
@@ -77,6 +77,8 @@ export default function ProductDetail() {
   const [selectedSize, setSelectedSize] = useState(product?.sizes?.[0] || "");
   const [quantity, setQuantity] = useState(1);
 
+  const images = getProductImages(product);
+
   useEffect(() => {
     if (!product) return;
     setSelectedSize(product.sizes?.[0] || "");
@@ -87,12 +89,28 @@ export default function ProductDetail() {
     setQuantity((current) => Math.min(Math.max(1, current), stockValue || 1));
   }, [isOutOfStock, product, stockValue]);
 
+  // Keyboard navigation for gallery
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (images.length <= 1) return;
+      
+      if (e.key === "ArrowLeft") {
+        setSelectedImage((prev) => (prev - 1 + images.length) % images.length);
+      } else if (e.key === "ArrowRight") {
+        setSelectedImage((prev) => (prev + 1) % images.length);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [images.length]);
+
   if (!product) {
     return (
       <Layout>
         <div className="min-h-screen flex items-center justify-center pt-24">
           <div className="text-center">
-            <h1 className="font-display text-3xl text-ivory mb-6">Product Not Found</h1>
+            <h1 className="font-display text-3xl text-primary mb-6">Product Not Found</h1>
             <Link to="/shop" className="btn-primary">Back to Collection</Link>
           </div>
         </div>
@@ -143,74 +161,107 @@ export default function ProductDetail() {
 
   return (
     <Layout>
-      <div className="pt-28 pb-24 bg-ink">
+      <div className="pt-28 pb-24 bg-primary">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <nav className="flex items-center gap-2 text-muted text-[10px] font-inter tracking-widest uppercase mb-12">
             <Link to="/" className="hover:text-champagne transition-colors">Home</Link>
             <span>/</span>
             <Link to="/shop" className="hover:text-champagne transition-colors">Collection</Link>
             <span>/</span>
-            <span className="text-ivory/60 truncate max-w-[200px]">{product.name}</span>
+            <span className="text-primary/60 truncate max-w-[200px]">{product.name}</span>
           </nav>
 
-          <div className="grid lg:grid-cols-2 gap-12 xl:gap-20">
-            <div className="space-y-4">
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.8 }}
-                className="relative aspect-square overflow-hidden bg-surface"
-              >
-                <AnimatePresence mode="wait">
-                  <motion.img
-                    key={selectedImage}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.4 }}
-                    src={product.images[selectedImage]}
-                    alt={product.name}
-                    className="w-full h-full object-cover"
-                  />
-                </AnimatePresence>
+          <div className="grid lg:grid-cols-2 gap-12 xl:gap-16">
+            {/* Gallery - Desktop: Left thumbnails, Main image */}
+            <div className="lg:grid lg:grid-cols-12 gap-4">
+              {/* Thumbnails - Desktop only */}
+              <div className="hidden lg:flex lg:col-span-2 flex-col gap-3 order-1">
+                {images.map((img, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setSelectedImage(i)}
+                    className={`h-20 w-20 overflow-hidden border transition-all ${
+                      selectedImage === i ? "border-champagne" : "border-themed hover:border-white/20"
+                    }`}
+                    aria-label={`View image ${i + 1}`}
+                    aria-current={selectedImage === i}
+                  >
+                    <img src={img} alt={`${product.name} view ${i + 1}`} className="w-full h-full object-cover" />
+                  </button>
+                ))}
+              </div>
 
-                {product.images.length > 1 && (
-                  <>
-                    <button
-                      onClick={() => setSelectedImage((prev) => (prev - 1 + product.images.length) % product.images.length)}
-                      className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 glass flex items-center justify-center text-ivory hover:text-champagne transition-colors"
-                      aria-label="Previous image"
-                    >
-                      <ChevronLeft size={18} strokeWidth={1.5} />
-                    </button>
-                    <button
-                      onClick={() => setSelectedImage((prev) => (prev + 1) % product.images.length)}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 glass flex items-center justify-center text-ivory hover:text-champagne transition-colors"
-                      aria-label="Next image"
-                    >
-                      <ChevronRight size={18} strokeWidth={1.5} />
-                    </button>
-                  </>
+              {/* Main image */}
+              <div className="lg:col-span-10 order-2">
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.8 }}
+                  className="relative aspect-square overflow-hidden bg-surface"
+                >
+                  <AnimatePresence mode="wait">
+                    <motion.img
+                      key={selectedImage}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.4 }}
+                      src={images[selectedImage]}
+                      alt={product.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </AnimatePresence>
+
+                  {/* Navigation arrows */}
+                  {images.length > 1 && (
+                    <>
+                      <button
+                        onClick={() => setSelectedImage((prev) => (prev - 1 + images.length) % images.length)}
+                        className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 glass flex items-center justify-center text-primary hover:text-champagne transition-colors"
+                        aria-label="Previous image"
+                      >
+                        <ChevronLeft size={18} strokeWidth={1.5} />
+                      </button>
+                      <button
+                        onClick={() => setSelectedImage((prev) => (prev + 1) % images.length)}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 glass flex items-center justify-center text-primary hover:text-champagne transition-colors"
+                        aria-label="Next image"
+                      >
+                        <ChevronRight size={18} strokeWidth={1.5} />
+                      </button>
+                    </>
+                  )}
+
+                  {/* Image counter */}
+                  {images.length > 1 && (
+                    <div className="absolute bottom-4 left-4 bg-primary/90 backdrop-blur-sm text-primary text-[10px] font-inter tracking-widest uppercase px-2.5 py-1 border border-themed">
+                      {selectedImage + 1} / {images.length}
+                    </div>
+                  )}
+                </motion.div>
+
+                {/* Thumbnails - Mobile only */}
+                {images.length > 1 && (
+                  <div className="flex gap-3 mt-4 lg:hidden overflow-x-auto pb-2">
+                    {images.map((img, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setSelectedImage(i)}
+                        className={`h-20 w-20 flex-shrink-0 overflow-hidden border transition-all ${
+                          selectedImage === i ? "border-champagne" : "border-themed hover:border-white/20"
+                        }`}
+                        aria-label={`View image ${i + 1}`}
+                        aria-current={selectedImage === i}
+                      >
+                        <img src={img} alt={`${product.name} view ${i + 1}`} className="w-full h-full object-cover" />
+                      </button>
+                    ))}
+                  </div>
                 )}
-              </motion.div>
-
-              {product.images.length > 1 && (
-                <div className="flex gap-3">
-                  {product.images.map((img, i) => (
-                    <button
-                      key={i}
-                      onClick={() => setSelectedImage(i)}
-                      className={`h-20 w-20 overflow-hidden border transition-all ${
-                        selectedImage === i ? "border-champagne" : "border-white/[0.08] hover:border-white/20"
-                      }`}
-                    >
-                      <img src={img} alt={`${product.name} view ${i + 1}`} className="w-full h-full object-cover" />
-                    </button>
-                  ))}
-                </div>
-              )}
+              </div>
             </div>
 
+            {/* Product Information */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -218,11 +269,11 @@ export default function ProductDetail() {
               className="lg:py-4"
             >
               <p className="eyebrow mb-4 capitalize">{product.category}</p>
-              <h1 className="font-display text-3xl sm:text-4xl xl:text-5xl text-ivory font-light leading-tight mb-6">
+              <h1 className="font-display text-3xl sm:text-4xl xl:text-5xl text-primary font-light leading-tight mb-6">
                 {product.name}
               </h1>
 
-              <div className="flex items-baseline gap-4 mb-8 pb-8 border-b border-white/[0.06]">
+              <div className="flex items-baseline gap-4 mb-8 pb-8 border-b border-themed">
                 <span className="font-inter text-2xl text-champagne">
                   {currencySymbol} {product.price.toLocaleString()}
                 </span>
@@ -247,7 +298,7 @@ export default function ProductDetail() {
               {product.sizes[0] !== "N/A" && (
                 <div className="mb-6">
                   <p className="font-inter text-[10px] tracking-widest uppercase text-muted mb-3">
-                    Size — <span className="text-ivory">{selectedSize}</span>
+                    Size — <span className="text-primary">{selectedSize}</span>
                   </p>
                   <div className="flex flex-wrap gap-2">
                     {product.sizes.map((size) => (
@@ -257,7 +308,7 @@ export default function ProductDetail() {
                         className={`px-4 py-2 text-xs font-inter border transition-all ${
                           selectedSize === size
                             ? "bg-champagne text-ink border-champagne"
-                            : "border-white/[0.08] text-muted hover:border-champagne/40"
+                            : "border-themed text-muted hover:border-champagne/40"
                         }`}
                       >
                         {size}
@@ -272,7 +323,7 @@ export default function ProductDetail() {
                   <p className="font-inter text-[10px] tracking-widest uppercase text-muted mb-3">Colors</p>
                   <div className="flex flex-wrap gap-2">
                     {product.colors.map((color) => (
-                      <span key={color} className="px-3 py-1.5 text-xs font-inter text-muted border border-white/[0.08]">
+                      <span key={color} className="px-3 py-1.5 text-xs font-inter text-muted border border-themed">
                         {color}
                       </span>
                     ))}
@@ -282,20 +333,20 @@ export default function ProductDetail() {
 
               <div className="flex items-center gap-4 mb-8">
                 <p className="font-inter text-[10px] tracking-widest uppercase text-muted">Quantity</p>
-                <div className="flex items-center gap-4 border border-white/[0.08] px-4 py-2">
+                <div className="flex items-center gap-4 border border-themed px-4 py-2">
                   <button
                     onClick={() => setQuantity((q) => Math.max(1, q - 1))}
                     disabled={quantity <= 1}
-                    className="text-muted hover:text-ivory disabled:opacity-40"
+                    className="text-muted hover:text-primary disabled:opacity-40"
                     aria-label="Decrease quantity"
                   >
                     <Minus size={14} />
                   </button>
-                  <span className="font-inter text-sm text-ivory w-6 text-center">{quantity}</span>
+                  <span className="font-inter text-sm text-primary w-6 text-center">{quantity}</span>
                   <button
                     onClick={() => setQuantity((q) => Math.min(stockValue || 1, q + 1))}
                     disabled={isOutOfStock || quantity >= (stockValue || 1)}
-                    className="text-muted hover:text-ivory disabled:opacity-40"
+                    className="text-muted hover:text-primary disabled:opacity-40"
                     aria-label="Increase quantity"
                   >
                     <Plus size={14} />
@@ -326,7 +377,7 @@ export default function ProductDetail() {
                 <button
                   onClick={() => toggleWishlist(product)}
                   className={`p-4 border transition-all ${
-                    wishlisted ? "border-champagne/40 text-champagne" : "border-white/[0.08] text-muted hover:text-ivory"
+                    wishlisted ? "border-champagne/40 text-champagne" : "border-themed text-muted hover:text-primary"
                   }`}
                   aria-label="Toggle wishlist"
                 >
@@ -334,18 +385,18 @@ export default function ProductDetail() {
                 </button>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 py-6 border-t border-white/[0.06]">
+              <div className="grid grid-cols-2 gap-4 py-6 border-t border-themed">
                 <div className="flex items-start gap-3">
                   <Truck size={16} strokeWidth={1.5} className="text-champagne mt-0.5 flex-shrink-0" />
                   <div>
-                    <p className="font-inter text-xs text-ivory">Free Delivery</p>
+                    <p className="font-inter text-xs text-primary">Free Delivery</p>
                     <p className="font-inter text-[11px] text-muted">Orders over {currencySymbol} 5,000</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <Shield size={16} strokeWidth={1.5} className="text-champagne mt-0.5 flex-shrink-0" />
                   <div>
-                    <p className="font-inter text-xs text-ivory">100% Authentic</p>
+                    <p className="font-inter text-xs text-primary">100% Authentic</p>
                     <p className="font-inter text-[11px] text-muted">Quality guaranteed</p>
                   </div>
                 </div>
@@ -359,9 +410,9 @@ export default function ProductDetail() {
                   <table className="w-full">
                     <tbody>
                       {Object.entries(productSpecs).map(([key, val]) => (
-                        <tr key={key} className="border-b border-white/[0.04]">
+                        <tr key={key} className="border-b border-themed">
                           <td className="py-3 pr-6 font-inter text-[10px] tracking-wider uppercase text-muted w-2/5">{key}</td>
-                          <td className="py-3 font-inter text-sm text-ivory/80">{val}</td>
+                          <td className="py-3 font-inter text-sm text-primary/80">{val}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -377,7 +428,7 @@ export default function ProductDetail() {
             </motion.div>
           </div>
 
-          {product.images[1] && (
+          {images[1] && (
             <motion.div
               initial={{ opacity: 0, y: 32 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -385,15 +436,15 @@ export default function ProductDetail() {
               transition={{ duration: 0.8 }}
               className="mt-24 md:mt-32 relative h-[50vh] md:h-[70vh] overflow-hidden"
             >
-              <img src={product.images[1]} alt={`${product.name} detail`} className="w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-t from-ink via-transparent to-ink/20" />
+              <img src={images[1]} alt={`${product.name} detail`} className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-t from-primary via-transparent to-primary/20" />
             </motion.div>
           )}
 
           {relatedProducts.length > 0 && (
             <div className="mt-24 md:mt-32">
               <p className="eyebrow mb-4">You May Also Like</p>
-              <h2 className="font-display text-3xl text-ivory font-light mb-12">Related Timepieces</h2>
+              <h2 className="font-display text-3xl text-primary font-light mb-12">Related Timepieces</h2>
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
                 {relatedProducts.map((p) => (
                   <ProductCard key={p.id} product={p} />

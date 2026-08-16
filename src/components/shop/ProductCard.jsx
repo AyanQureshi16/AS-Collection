@@ -4,7 +4,7 @@ import { Heart, ShoppingBag } from "lucide-react";
 import { useCart } from "../../context/CartContext";
 import { useWishlist } from "../../context/WishlistContext";
 import { useSettings } from "../../context/SettingsContext";
-import { getProductStockStatus, normalizeProductStock } from "../../utils/productStorage";
+import { getProductStockStatus, normalizeProductStock, getProductImages } from "../../utils/productStorage";
 import toast from "react-hot-toast";
 
 export default function ProductCard({ product, onQuickView, variant = "default" }) {
@@ -13,11 +13,7 @@ export default function ProductCard({ product, onQuickView, variant = "default" 
   const { settings } = useSettings();
   const normalizedProduct = product || {};
   const badges = Array.isArray(normalizedProduct.badges) ? normalizedProduct.badges : [];
-  const images = Array.isArray(normalizedProduct.images) && normalizedProduct.images.length
-    ? normalizedProduct.images
-    : normalizedProduct.image
-      ? [normalizedProduct.image]
-      : [];
+  const images = getProductImages(normalizedProduct);
   const sizes = Array.isArray(normalizedProduct.sizes) && normalizedProduct.sizes.length
     ? normalizedProduct.sizes
     : ["N/A"];
@@ -104,6 +100,13 @@ export default function ProductCard({ product, onQuickView, variant = "default" 
               View Watch
             </span>
           </div>
+
+          {/* +N badge for additional images */}
+          {images.length > 1 && (
+            <div className="absolute bottom-4 right-4 bg-primary/90 backdrop-blur-sm text-champagne text-[10px] font-inter tracking-widest uppercase px-2.5 py-1 border border-champagne/30">
+              +{images.length - 1}
+            </div>
+          )}
 
           {/* Badges — minimal */}
           {(badges.includes("New") || badges.includes("Sale")) && (
