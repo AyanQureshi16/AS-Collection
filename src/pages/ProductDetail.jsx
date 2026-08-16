@@ -11,6 +11,7 @@ import { getCustomerVisibleProducts, getRelatedProducts, normalizeProduct } from
 import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
 import { useProducts } from "../context/ProductContext";
+import { useSettings } from "../context/SettingsContext";
 import { getProductStockStatus, normalizeProductStock } from "../utils/productStorage";
 import toast from "react-hot-toast";
 
@@ -61,9 +62,15 @@ export default function ProductDetail() {
 
   const { addToCart } = useCart();
   const { toggleWishlist, isWishlisted } = useWishlist();
+  const { settings } = useSettings();
+  
+  const currencySymbol = settings?.currencySymbol || "₨";
+  const currency = settings?.currency || "PKR";
+  const lowStockThreshold = settings?.lowStockThreshold || 10;
+  const isStoreClosed = settings?.storeStatus === "Closed";
 
   const stockValue = normalizeProductStock(product?.stock ?? product?.inventory ?? 0);
-  const stockStatus = getProductStockStatus(product);
+  const stockStatus = getProductStockStatus(product, lowStockThreshold);
   const isOutOfStock = stockValue <= 0;
 
   const [selectedImage, setSelectedImage] = useState(0);
@@ -98,6 +105,10 @@ export default function ProductDetail() {
   const productSpecs = product.specifications || {};
 
   const handleAddToCart = () => {
+    if (isStoreClosed) {
+      toast.error("Store is currently closed. Purchasing is disabled.", { style: { background: "#111", color: "#F5F2EA" } });
+      return;
+    }
     if (isOutOfStock) {
       toast.error("This product is out of stock.", { style: { background: "#111", color: "#F5F2EA" } });
       return;
@@ -114,6 +125,10 @@ export default function ProductDetail() {
   };
 
   const handleBuyNow = () => {
+    if (isStoreClosed) {
+      toast.error("Store is currently closed. Purchasing is disabled.", { style: { background: "#111", color: "#F5F2EA" } });
+      return;
+    }
     if (isOutOfStock) {
       toast.error("This product is out of stock.", { style: { background: "#111", color: "#F5F2EA" } });
       return;
@@ -209,11 +224,11 @@ export default function ProductDetail() {
 
               <div className="flex items-baseline gap-4 mb-8 pb-8 border-b border-white/[0.06]">
                 <span className="font-inter text-2xl text-champagne">
-                  PKR {product.price.toLocaleString()}
+                  {currencySymbol} {product.price.toLocaleString()}
                 </span>
                 {product.oldPrice && (
                   <span className="font-inter text-muted line-through text-lg">
-                    PKR {product.oldPrice.toLocaleString()}
+                    {currencySymbol} {product.oldPrice.toLocaleString()}
                   </span>
                 )}
               </div>
@@ -291,22 +306,22 @@ export default function ProductDetail() {
               <div className="flex flex-col sm:flex-row gap-3 mb-10">
                 <button
                   onClick={handleAddToCart}
-                  disabled={isOutOfStock}
+                  disabled={isOutOfStock || isStoreClosed}
                   className={`flex-1 flex items-center justify-center gap-2 py-4 font-inter text-[11px] tracking-widest uppercase ${
-                    isOutOfStock ? "bg-surface text-muted cursor-not-allowed" : "btn-primary"
+                    isOutOfStock || isStoreClosed ? "bg-surface text-muted cursor-not-allowed" : "btn-primary"
                   }`}
                 >
                   <ShoppingBag size={16} strokeWidth={1.5} />
-                  {isOutOfStock ? "Out of Stock" : "Add to Cart"}
+                  {isStoreClosed ? "Store Closed" : isOutOfStock ? "Out of Stock" : "Add to Cart"}
                 </button>
                 <button
                   onClick={handleBuyNow}
-                  disabled={isOutOfStock}
+                  disabled={isOutOfStock || isStoreClosed}
                   className={`flex-1 py-4 font-inter text-[11px] tracking-widest uppercase ${
-                    isOutOfStock ? "bg-surface text-muted cursor-not-allowed" : "btn-white"
+                    isOutOfStock || isStoreClosed ? "bg-surface text-muted cursor-not-allowed" : "btn-white"
                   }`}
                 >
-                  Buy Now
+                  {isStoreClosed ? "Store Closed" : "Buy Now"}
                 </button>
                 <button
                   onClick={() => toggleWishlist(product)}
@@ -324,7 +339,7 @@ export default function ProductDetail() {
                   <Truck size={16} strokeWidth={1.5} className="text-champagne mt-0.5 flex-shrink-0" />
                   <div>
                     <p className="font-inter text-xs text-ivory">Free Delivery</p>
-                    <p className="font-inter text-[11px] text-muted">Orders over PKR 5,000</p>
+                    <p className="font-inter text-[11px] text-muted">Orders over {currencySymbol} 5,000</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">

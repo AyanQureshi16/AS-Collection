@@ -7,6 +7,7 @@ import ProductCard from "../components/shop/ProductCard";
 import { ProductCardSkeleton } from "../components/ui/Skeleton";
 import QuickView from "../components/ui/QuickView";
 import { useProducts } from "../context/ProductContext";
+import { useSettings } from "../context/SettingsContext";
 import { getCustomerVisibleProducts } from "../data/products";
 
 const ITEMS_PER_PAGE = 12;
@@ -23,6 +24,7 @@ const sortOptions = [
 export default function Shop() {
   const [searchParams, setSearchParams] = useSearchParams();
   const { products, isLoading } = useProducts();
+  const { settings } = useSettings();
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(
     searchParams.get("category") || "all"
@@ -32,6 +34,9 @@ export default function Shop() {
   const [currentPage, setCurrentPage] = useState(1);
   const [quickViewProduct, setQuickViewProduct] = useState(null);
   const [filterOpen, setFilterOpen] = useState(false);
+  
+  const currencySymbol = settings?.currencySymbol || "₨";
+  const currency = settings?.currency || "PKR";
 
   const allProducts = useMemo(() => getCustomerVisibleProducts(products), [products]);
 
@@ -107,7 +112,7 @@ export default function Shop() {
   return (
     <Layout>
       {/* Editorial header */}
-      <div className="relative pt-32 pb-20 md:pt-40 md:pb-28 bg-ink">
+      <div className="relative pt-32 pb-20 md:pt-40 md:pb-28 bg-primary">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_40%_at_50%_0%,rgba(201,168,106,0.05)_0%,transparent_60%)]" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -116,10 +121,13 @@ export default function Shop() {
             transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
             className="max-w-2xl"
           >
-            <p className="eyebrow mb-6">Shop</p>
-            <h1 className="section-title mb-6">The Collection</h1>
+            <p className="eyebrow mb-6">{sort === "new" ? "New" : "Shop"}</p>
+            <h1 className="section-title mb-6">{sort === "new" ? "New Arrivals" : "The Collection"}</h1>
             <p className="font-inter text-muted text-base md:text-lg leading-relaxed">
-              Timepieces designed to make every moment count. Explore our curated selection of premium watches.
+              {sort === "new" 
+                ? "Discover our latest additions to the collection. Fresh timepieces just arrived, featuring cutting-edge designs and premium craftsmanship."
+                : "Timepieces designed to make every moment count. Explore our curated selection of premium watches."
+              }
             </p>
           </motion.div>
         </div>
@@ -200,8 +208,8 @@ export default function Shop() {
                 <h3 className="font-inter text-[10px] tracking-widest uppercase text-muted mb-6">Price Range</h3>
                 <div className="space-y-4 max-w-md">
                   <div className="flex justify-between text-sm font-inter">
-                    <span className="text-muted">PKR {priceRange[0].toLocaleString()}</span>
-                    <span className="text-champagne">PKR {priceRange[1].toLocaleString()}</span>
+                    <span className="text-muted">{currencySymbol} {priceRange[0].toLocaleString()}</span>
+                    <span className="text-champagne">{currencySymbol} {priceRange[1].toLocaleString()}</span>
                   </div>
                   <input
                     type="range"

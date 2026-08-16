@@ -31,16 +31,6 @@ const INITIAL_CATEGORIES = [
     createdAt: "2026-01-01T00:00:00.000Z",
     updatedAt: "2026-01-01T00:00:00.000Z",
   },
-  {
-    id: 4,
-    name: "Perfumes",
-    slug: "perfumes",
-    description: "Signature scents with rich, memorable character.",
-    image: "https://images.unsplash.com/photo-1541643600914-78b084683702?w=100&q=80",
-    status: "Active",
-    createdAt: "2026-01-01T00:00:00.000Z",
-    updatedAt: "2026-01-01T00:00:00.000Z",
-  },
 ];
 
 export const getStoredCategories = () => {

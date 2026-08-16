@@ -27,6 +27,7 @@ export default function Checkout() {
   const { orders, generateOrderNumber, addOrder } = useOrders();
   const { customers, addCustomer } = useCustomers();
   const { settings } = useSettings();
+  const { deductStock } = useProducts();
   const [form, setForm] = useState({
     name: "",
     phone: "",
@@ -38,6 +39,10 @@ export default function Checkout() {
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [orderPlaced, setOrderPlaced] = useState(null);
+  
+  const currencySymbol = settings?.currencySymbol || "₨";
+  const currency = settings?.currency || "PKR";
+  const isStoreClosed = settings?.storeStatus === "Closed";
 
   const grandTotal = cartSubtotal + SHIPPING;
 
@@ -164,8 +169,11 @@ export default function Checkout() {
         throw new Error("Order creation failed");
       }
 
-      // Cart cleared and order is persisted. Build WhatsApp message from the actual saved order object
-      clearCart();
+      // Deduct stock from products after successful order creation
+      deductStock(orderItems);
+
+      // Build WhatsApp message from the actual saved order object
+      // DO NOT clear cart yet - user must confirm they sent the WhatsApp message
       setOrderPlaced(createdOrder);
       setSubmitting(false);
 
@@ -198,7 +206,7 @@ export default function Checkout() {
         return;
       }
 
-      const waUrl = generateWhatsAppOrder(waCartItems, waCustomer, SHIPPING, waNumber);
+      const waUrl = generateWhatsAppOrder(waCartItems, waCustomer, SHIPPING, waNumber, settings?.storeName || "AS Collection", currencySymbol);
 
       if (!waUrl) {
         toast.error("Could not generate WhatsApp URL. Please check settings.", { style: { background: "#1a1a1a", color: "#fff" } });
@@ -245,13 +253,43 @@ export default function Checkout() {
             <p className="text-gold font-inter text-xs tracking-[0.35em] uppercase mb-4">Order Placed Successfully</p>
             <h1 className="font-playfair font-black text-white text-3xl md:text-4xl mb-4">Thank You</h1>
             <p className="font-inter text-white/50 text-base mb-6">Your order number is:</p>
-            <div className="inline-flex items-center justify-center rounded-xl border border-gold/40 bg-gold/10 px-6 py-4 font-mono text-xl gold-text font-semibold mb-8">
+            <div className="inline-flex items-center justify-center rounded-xl border border-gold/40 bg-gold/10 px-6 py-4 font-mono text-xl gold-text font-semibold mb-4">
               {orderPlaced.orderNumber}
             </div>
+            <p className="font-inter text-white/60 text-sm mb-8">
+              You have been redirected to WhatsApp with your order details. Please send the message to confirm your order.
+            </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/shop" className="btn-gold px-8 py-4 text-center">Continue Shopping</Link>
+              <button
+                onClick={() => {
+                  clearCart();
+                  toast.success("Cart cleared. Thank you for your order!", {
+                    style: { background: "#1a1a1a", color: "#fff", border: "1px solid rgba(212,175,55,0.3)" },
+                  });
+                }}
+                className="btn-gold px-8 py-4 text-center"
+              >
+                I've Sent My Order on WhatsApp
+              </button>
+              <Link to="/shop" className="btn-ghost px-8 py-4 text-center">
+                Continue Shopping
+              </Link>
             </div>
           </motion.div>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (isStoreClosed) {
+    return (
+      <Layout>
+        <div className="pt-32 pb-24 min-h-screen flex items-center justify-center">
+          <div className="text-center max-w-md mx-auto px-4">
+            <h1 className="font-playfair font-black text-white text-4xl mb-4">Store Closed</h1>
+            <p className="font-inter text-white/50 text-base mb-8">The store is currently closed. Please check back later.</p>
+            <Link to="/shop" className="btn-gold">Back to Shop</Link>
+          </div>
         </div>
       </Layout>
     );
@@ -436,7 +474,7 @@ export default function Checkout() {
                           <p className="text-white/30 text-xs mt-1">Qty: {item.quantity}</p>
                         </div>
                         <p className="text-gold text-sm font-poppins font-semibold">
-                          PKR {(Number(item.price || 0) * Number(item.quantity || 0)).toLocaleString()}
+                          {currencySymbol} {(Number(item.price || 0) * Number(item.quantity || 0)).toLocaleString()}
                         </p>
                       </div>
                     ))}
@@ -445,7 +483,7 @@ export default function Checkout() {
                   <div className="space-y-4 text-sm font-inter">
                     <div className="flex justify-between text-white/50">
                       <span>Subtotal</span>
-                      <span>PKR {cartSubtotal.toLocaleString()}</span>
+                      <span>{currencySymbol} {cartSubtotal.toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between text-white/50">
                       <span>Shipping</span>
@@ -454,7 +492,7 @@ export default function Checkout() {
                     <div className="h-px bg-white/5 my-4" />
                     <div className="flex justify-between text-white font-poppins font-bold text-lg">
                       <span>Grand Total</span>
-                      <span className="gold-text">PKR {grandTotal.toLocaleString()}</span>
+                      <span className="gold-text">{currencySymbol} {grandTotal.toLocaleString()}</span>
                     </div>
                   </div>
 

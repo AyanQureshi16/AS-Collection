@@ -1,13 +1,15 @@
 // WhatsApp order message generator for AS Collection
 // Redirects to wa.me with a pre-filled order message
 
-const formatPrice = (amount) => `PKR ${Number(amount || 0).toLocaleString("en-PK")}`;
+const formatPrice = (amount, currencySymbol = "₨") => `${currencySymbol} ${Number(amount || 0).toLocaleString("en-PK")}`;
 
 export const generateWhatsAppOrder = (
   cartItems,
   customerInfo,
   shippingCharge = 0,
-  whatsAppNumber = ""
+  whatsAppNumber = "",
+  storeName = "AS Collection",
+  currencySymbol = "₨"
 ) => {
   const cleanedNumber = String(whatsAppNumber || "").replace(/\D/g, "");
 
@@ -25,15 +27,15 @@ export const generateWhatsAppOrder = (
         `${index + 1}. *${item.name}*` +
         `${sizeText}\n` +
         `   Qty: ${item.quantity}\n` +
-        `   Price: ${formatPrice(item.price)} each\n` +
-        `   Subtotal: ${formatPrice((Number(item.price || 0) * Number(item.quantity || 0)))}`
+        `   Price: ${formatPrice(item.price, currencySymbol)} each\n` +
+        `   Subtotal: ${formatPrice((Number(item.price || 0) * Number(item.quantity || 0)), currencySymbol)}`
       );
     })
     .join("\n\n");
 
   const message =
     `Assalam-o-Alaikum,\n\n` +
-    `I would like to place an order from *AS Collection*.\n\n` +
+    `I would like to place an order from *${storeName}*.\n\n` +
     `━━━━━━━━━━━━━━━━━━━━\n` +
     `🛍️ *ORDER DETAILS*\n` +
     `━━━━━━━━━━━━━━━━━━━━\n\n` +
@@ -41,9 +43,9 @@ export const generateWhatsAppOrder = (
     `━━━━━━━━━━━━━━━━━━━━\n` +
     `💰 *PRICE SUMMARY*\n` +
     `━━━━━━━━━━━━━━━━━━━━\n` +
-    `Subtotal: ${formatPrice(subtotal)}\n` +
-    `Shipping: ${formatPrice(shippingCharge)}\n` +
-    `*Grand Total: ${formatPrice(grandTotal)}*\n\n` +
+    `Subtotal: ${formatPrice(subtotal, currencySymbol)}\n` +
+    `Shipping: ${formatPrice(shippingCharge, currencySymbol)}\n` +
+    `*Grand Total: ${formatPrice(grandTotal, currencySymbol)}*\n\n` +
     `━━━━━━━━━━━━━━━━━━━━\n` +
     `📦 *DELIVERY DETAILS*\n` +
     `━━━━━━━━━━━━━━━━━━━━\n` +

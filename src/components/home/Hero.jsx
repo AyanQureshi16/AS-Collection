@@ -3,12 +3,14 @@ import { Link } from "react-router-dom";
 import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { useProducts } from "../../context/ProductContext";
+import { useSettings } from "../../context/SettingsContext";
 import { getFeaturedCustomerProducts, getCustomerVisibleProducts } from "../../data/products";
 
 export default function Hero() {
   const containerRef = useRef(null);
   const prefersReduced = useReducedMotion();
   const { products } = useProducts();
+  const { settings } = useSettings();
 
   const heroProduct = useMemo(() => {
     const featured = getFeaturedCustomerProducts(products);
@@ -22,14 +24,14 @@ export default function Hero() {
 
   const heroImage =
     heroProduct?.images?.[0] ||
-    "https://cdn.shopify.com/s/files/1/1468/9008/products/WatchGuyNYC_RN022_Rolex_Day-Date_36_Green_Dial_Fluted_Bezel_President_Yellow_Gold_Watch_118238_2cefc687-3e22-408a-bf37-4207fdcdf808_800x.jpg?v=1586812972";
+    "https://images.squarespace-cdn.com/content/v1/53a2b3a1e4b0a5020bebe676/1683448311987-VA24A3PJIAEQWFFBKGMU/luxury-rolex-watch-photography-uk-5.JPG";
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end start"],
   });
   const parallaxY = useTransform(scrollYProgress, [0, 1], [0, 120]);
-  const contentOpacity = useTransform(scrollYProgress, [0, 0.35], [1, 0]);
+  const contentOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
 
   const ease = [0.22, 1, 0.36, 1];
   const noMotion = prefersReduced;
@@ -37,7 +39,7 @@ export default function Hero() {
   return (
     <section
       ref={containerRef}
-      className="relative min-h-[100svh] flex items-center overflow-hidden bg-ink"
+      className="relative min-h-[100svh] flex items-center overflow-hidden bg-primary"
     >
       {/* Cinematic background */}
       <motion.div
@@ -46,10 +48,10 @@ export default function Hero() {
         transition={{ duration: noMotion ? 0 : 1.4, ease }}
         className="absolute inset-0"
       >
-        <div className="absolute inset-0 bg-ink" />
+        <div className="absolute inset-0 bg-primary" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_50%_at_70%_50%,rgba(201,168,106,0.06)_0%,transparent_70%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_50%_80%_at_20%_80%,rgba(201,168,106,0.04)_0%,transparent_60%)]" />
-        <div className="absolute inset-0 bg-gradient-to-b from-ink/20 via-transparent to-ink" />
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/20 via-transparent to-primary" />
       </motion.div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10 pt-24 pb-16 lg:pb-0">
@@ -84,16 +86,6 @@ export default function Hero() {
 
           {/* Content */}
           <div className="relative order-2 lg:order-1 z-10 lg:pr-8">
-            {/* Wordmark entrance */}
-            <motion.p
-              initial={noMotion ? false : { opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: noMotion ? 0 : 0.8, delay: 0.2, ease }}
-              className="font-display text-sm tracking-[0.35em] text-champagne/80 mb-8 hidden lg:block"
-            >
-              ZELMIOR
-            </motion.p>
-
             <motion.p
               initial={noMotion ? false : { opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -107,7 +99,7 @@ export default function Hero() {
               initial={noMotion ? false : { opacity: 0, y: 32 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: noMotion ? 0 : 1, delay: 0.55, ease }}
-              className="font-display font-light text-5xl sm:text-6xl md:text-7xl lg:text-[5.5rem] xl:text-[6.5rem] leading-[0.95] tracking-tight text-ivory mb-8"
+              className="font-display font-light text-5xl sm:text-6xl md:text-7xl lg:text-[5.5rem] xl:text-[6.5rem] leading-[0.95] tracking-tight text-primary mb-8"
             >
               TIME,<br />
               <span className="italic text-champagne">REFINED.</span>
@@ -133,7 +125,7 @@ export default function Hero() {
                 <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform duration-400" />
               </Link>
               <Link to="/about" className="btn-ghost">
-                Discover ZELMIOR
+                Discover {settings?.storeName || 'ZELMIOR'}
               </Link>
             </motion.div>
 
@@ -142,7 +134,7 @@ export default function Hero() {
               initial={noMotion ? false : { opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: noMotion ? 0 : 0.8, delay: 1.2, ease }}
-              className="flex flex-wrap gap-x-10 gap-y-4 mt-16 pt-8 border-t border-white/[0.06]"
+              className="flex flex-wrap gap-x-10 gap-y-4 mt-16 pt-8 border-t border-themed"
             >
               {["Premium Quality", "Secure Shopping", "Nationwide Delivery"].map((item) => (
                 <span key={item} className="font-inter text-[11px] tracking-widest uppercase text-muted">

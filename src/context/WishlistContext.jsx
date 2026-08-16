@@ -14,7 +14,11 @@ export function WishlistProvider({ children }) {
   });
 
   useEffect(() => {
-    localStorage.setItem(WISHLIST_KEY, JSON.stringify(wishlist));
+    try {
+      localStorage.setItem(WISHLIST_KEY, JSON.stringify(wishlist));
+    } catch {
+      // fail silently on storage constraints
+    }
   }, [wishlist]);
 
   const toggleWishlist = (product) => {

@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
+import { useSettings } from "../../context/SettingsContext";
 
 export default function Newsletter() {
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
+  const { settings } = useSettings();
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -55,7 +57,7 @@ export default function Newsletter() {
           </h2>
           
           <p className="font-inter text-[#B8B8C0] text-lg leading-relaxed mb-12 max-w-xl mx-auto">
-            Discover new arrivals, exclusive releases, and stories from ZELMIOR.
+            Discover new arrivals, exclusive releases, and stories from {settings?.storeName || 'ZELMIOR'}.
           </p>
 
           {!subscribed ? (
@@ -86,12 +88,12 @@ export default function Newsletter() {
               <div className="w-10 h-10 rounded-full bg-[#D4AF37] flex items-center justify-center">
                 <ArrowRight size={18} className="text-[#08090B]" />
               </div>
-              <span className="text-[#D4AF37] font-inter font-semibold text-base">Welcome to ZELMIOR!</span>
+              <span className="text-[#D4AF37] font-inter font-semibold text-base">Welcome to {settings?.storeName || 'ZELMIOR'}!</span>
             </motion.div>
           )}
 
           <p className="text-[#B8B8C0] text-xs font-inter mt-8">
-            By subscribing, you agree to receive marketing emails from ZELMIOR.
+            By subscribing, you agree to receive marketing emails from {settings?.storeName || 'ZELMIOR'}.
           </p>
         </motion.div>
       </div>

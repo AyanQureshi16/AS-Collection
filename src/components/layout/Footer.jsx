@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Instagram, Facebook, ArrowRight } from "lucide-react";
+import { useSettings } from "../../context/SettingsContext";
 
 const footerNav = {
   Shop: [
@@ -18,16 +19,24 @@ const footerNav = {
   ],
 };
 
-const socials = [
+const baseSocials = [
   { icon: Instagram, href: "https://instagram.com", label: "Instagram" },
   { icon: Facebook, href: "https://facebook.com", label: "Facebook" },
   { label: "TikTok", href: "https://tiktok.com", custom: "Tk" },
-  { label: "WhatsApp", href: "https://whatsapp.com", custom: "Wa" },
 ];
 
 export default function Footer() {
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
+  const { settings } = useSettings();
+  
+  const whatsappNumber = settings?.whatsapp || "";
+  const cleanedWhatsApp = whatsappNumber.replace(/\D/g, "");
+  const whatsappUrl = cleanedWhatsApp ? `https://wa.me/${cleanedWhatsApp}` : null;
+  
+  const socials = whatsappUrl 
+    ? [...baseSocials, { label: "WhatsApp", href: whatsappUrl, custom: "Wa" }]
+    : baseSocials;
 
   const handleNewsletter = (e) => {
     e.preventDefault();
@@ -45,7 +54,7 @@ export default function Footer() {
         <div className="text-center mb-20">
           <Link to="/" className="inline-block">
             <h2 className="font-display text-5xl md:text-7xl lg:text-8xl tracking-[0.15em] text-ivory font-light leading-none hover:text-champagne transition-colors duration-500">
-              ZELMIOR
+              {settings?.storeName || 'ZELMIOR'}
             </h2>
           </Link>
           <p className="font-display italic text-champagne/80 text-lg md:text-xl mt-6 tracking-wide">
@@ -123,7 +132,7 @@ export default function Footer() {
           </div>
 
           <p className="font-inter text-xs text-muted/60">
-            © {new Date().getFullYear()} ZELMIOR. All rights reserved.
+            © {new Date().getFullYear()} {settings?.storeName || 'ZELMIOR'}. All rights reserved.
           </p>
         </div>
       </div>

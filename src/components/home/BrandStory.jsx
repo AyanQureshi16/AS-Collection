@@ -2,11 +2,13 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { useProducts } from "../../context/ProductContext";
+import { useSettings } from "../../context/SettingsContext";
 import { getCustomerVisibleProducts } from "../../data/products";
 import { useLuxuryMotion } from "../../utils/motion";
 
 export default function BrandStory() {
   const { products } = useProducts();
+  const { settings } = useSettings();
   const { fadeUp, transition } = useLuxuryMotion();
 
   const watchProduct = getCustomerVisibleProducts(products).find(
@@ -53,7 +55,7 @@ export default function BrandStory() {
               <span className="italic font-normal text-champagne">PERSONAL.</span>
             </h2>
             <p className="font-inter text-muted text-base md:text-lg leading-relaxed mb-6 max-w-md">
-              ZELMIOR creates watches designed to become part of the moments you remember.
+              {settings?.storeName || 'ZELMIOR'} creates watches designed to become part of the moments you remember.
             </p>
             <p className="font-inter text-muted/70 text-sm leading-relaxed mb-12 max-w-md">
               Each timepiece is a statement of precision, restraint, and enduring style — crafted for those who understand that true luxury speaks quietly.

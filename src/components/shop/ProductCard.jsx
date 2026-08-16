@@ -3,12 +3,14 @@ import { Link } from "react-router-dom";
 import { Heart, ShoppingBag } from "lucide-react";
 import { useCart } from "../../context/CartContext";
 import { useWishlist } from "../../context/WishlistContext";
+import { useSettings } from "../../context/SettingsContext";
 import { getProductStockStatus, normalizeProductStock } from "../../utils/productStorage";
 import toast from "react-hot-toast";
 
 export default function ProductCard({ product, onQuickView, variant = "default" }) {
   const { addToCart, isInCart } = useCart();
   const { toggleWishlist, isWishlisted } = useWishlist();
+  const { settings } = useSettings();
   const normalizedProduct = product || {};
   const badges = Array.isArray(normalizedProduct.badges) ? normalizedProduct.badges : [];
   const images = Array.isArray(normalizedProduct.images) && normalizedProduct.images.length
@@ -20,14 +22,23 @@ export default function ProductCard({ product, onQuickView, variant = "default" 
     ? normalizedProduct.sizes
     : ["N/A"];
   const productStock = normalizeProductStock(normalizedProduct?.stock ?? normalizedProduct?.inventory ?? 0);
-  const stockStatus = getProductStockStatus(normalizedProduct);
+  const lowStockThreshold = settings?.lowStockThreshold || 10;
+  const stockStatus = getProductStockStatus(normalizedProduct, lowStockThreshold);
   const isOutOfStock = productStock <= 0;
   const wishlisted = isWishlisted(normalizedProduct.id);
   const inCart = isInCart(normalizedProduct.id, sizes[0] || "");
+  
+  const currencySymbol = settings?.currencySymbol || "₨";
+  const currency = settings?.currency || "PKR";
+  const isStoreClosed = settings?.storeStatus === "Closed";
 
   const handleAddToCart = (e) => {
     e.preventDefault();
     e.stopPropagation();
+    if (isStoreClosed) {
+      toast.error("Store is currently closed. Purchasing is disabled.", { style: { background: "#111", color: "#F5F2EA" } });
+      return;
+    }
     if (isOutOfStock) {
       toast.error("This product is out of stock.", { style: { background: "#111", color: "#F5F2EA" } });
       return;
@@ -66,9 +77,7 @@ export default function ProductCard({ product, onQuickView, variant = "default" 
       <Link to={`/product/${normalizedProduct.id}`} className="block">
         {/* Image container */}
         <div
-          className={`relative overflow-hidden bg-surface ${
-            isFeatured ? "aspect-[3/4]" : isCompact ? "aspect-square" : "aspect-[4/5]"
-          }`}
+          className="relative overflow-hidden bg-surface aspect-[4/5]"
         >
           <img
             src={images[0]}
@@ -87,11 +96,11 @@ export default function ProductCard({ product, onQuickView, variant = "default" 
           )}
 
           {/* Dark overlay on hover */}
-          <div className="absolute inset-0 bg-ink/0 group-hover:bg-ink/30 transition-colors duration-400" />
+          <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/30 transition-colors duration-400" />
 
           {/* View Watch label */}
           <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-400">
-            <span className="font-inter text-[10px] tracking-[0.35em] uppercase text-ivory border border-ivory/40 px-6 py-3">
+            <span className="font-inter text-[10px] tracking-[0.35em] uppercase text-primary border border-primary/40 px-6 py-3">
               View Watch
             </span>
           </div>
@@ -105,7 +114,7 @@ export default function ProductCard({ product, onQuickView, variant = "default" 
                 </span>
               )}
               {badges.includes("Sale") && (
-                <span className="bg-ivory/10 backdrop-blur text-ivory text-[9px] font-inter tracking-widest uppercase px-3 py-1 border border-white/10">
+                <span className="bg-primary/10 backdrop-blur text-primary text-[9px] font-inter tracking-widest uppercase px-3 py-1 border border-themed">
                   Sale
                 </span>
               )}
@@ -116,7 +125,7 @@ export default function ProductCard({ product, onQuickView, variant = "default" 
           <button
             onClick={handleWishlist}
             className={`absolute top-4 right-4 p-2 opacity-0 group-hover:opacity-100 transition-all duration-300 ${
-              wishlisted ? "opacity-100 text-champagne" : "text-ivory/70 hover:text-champagne"
+              wishlisted ? "opacity-100 text-champagne" : "text-primary/70 hover:text-champagne"
             }`}
             aria-label="Toggle wishlist"
           >
@@ -129,16 +138,16 @@ export default function ProductCard({ product, onQuickView, variant = "default" 
           <p className="font-inter text-[10px] tracking-widest uppercase text-muted mb-2 capitalize">
             {normalizedProduct.subcategory || normalizedProduct.category}
           </p>
-          <h3 className="font-display text-lg md:text-xl text-ivory font-light leading-snug mb-2 group-hover:text-champagne transition-colors duration-400">
+          <h3 className="font-display text-lg md:text-xl text-primary font-light leading-snug mb-2 group-hover:text-champagne transition-colors duration-400">
             {normalizedProduct.name}
           </h3>
           <div className="flex items-baseline gap-3">
             <span className="font-inter text-sm text-champagne">
-              PKR {(normalizedProduct.price || 0).toLocaleString()}
+              {currencySymbol} {(normalizedProduct.price || 0).toLocaleString()}
             </span>
             {normalizedProduct.oldPrice && (
               <span className="font-inter text-xs text-muted line-through">
-                PKR {Number(normalizedProduct.oldPrice).toLocaleString()}
+                {currencySymbol} {Number(normalizedProduct.oldPrice).toLocaleString()}
               </span>
             )}
           </div>
@@ -156,9 +165,9 @@ export default function ProductCard({ product, onQuickView, variant = "default" 
       <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-400">
         <button
           onClick={handleAddToCart}
-          disabled={isOutOfStock}
+          disabled={isOutOfStock || isStoreClosed}
           className={`w-full py-3 font-inter text-[10px] tracking-widest uppercase flex items-center justify-center gap-2 transition-all duration-300 border ${
-            isOutOfStock
+            isOutOfStock || isStoreClosed
               ? "border-white/[0.06] text-muted/40 cursor-not-allowed"
               : inCart
                 ? "border-champagne/30 text-champagne bg-champagne/5"
@@ -166,7 +175,7 @@ export default function ProductCard({ product, onQuickView, variant = "default" 
           }`}
         >
           <ShoppingBag size={13} strokeWidth={1.5} />
-          {isOutOfStock ? "Out of Stock" : inCart ? "In Cart" : "Add to Cart"}
+          {isStoreClosed ? "Store Closed" : isOutOfStock ? "Out of Stock" : inCart ? "In Cart" : "Add to Cart"}
         </button>
       </div>
     </motion.article>

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Phone, Mail, MapPin, Clock, MessageCircle, Send } from "lucide-react";
 import Layout from "../components/layout/Layout";
+import { useSettings } from "../context/SettingsContext";
 import toast from "react-hot-toast";
 
 const faqs = [
@@ -23,7 +24,7 @@ const faqs = [
   },
   {
     q: "Are all products authentic?",
-    a: "Absolutely. AS Collection guarantees 100% authentic products. All our items come with authenticity documentation.",
+    a: "Absolutely. We guarantee 100% authentic products. All our items come with authenticity documentation.",
   },
 ];
 
@@ -56,8 +57,13 @@ function FAQItem({ item, index }) {
 }
 
 export default function Contact() {
+  const { settings } = useSettings();
   const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
   const [sent, setSent] = useState(false);
+  
+  const whatsappNumber = settings?.whatsapp || "";
+  const cleanedWhatsApp = whatsappNumber.replace(/\D/g, "");
+  const whatsappUrl = cleanedWhatsApp ? `https://wa.me/${cleanedWhatsApp}` : "#";
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -103,19 +109,19 @@ export default function Contact() {
               {
                 icon: Phone,
                 title: "Phone / WhatsApp",
-                lines: ["+92 300 123 4567", "+92 321 987 6543"],
-                action: { label: "Chat on WhatsApp", href: "https://wa.me/923001234567" },
+                lines: [settings?.phone || "+92 300 123 4567", settings?.phone || "+92 321 987 6543"],
+                action: whatsappUrl !== "#" ? { label: "Chat on WhatsApp", href: whatsappUrl } : null,
               },
               {
                 icon: Mail,
                 title: "Email",
-                lines: ["hello@ascollection.pk", "orders@ascollection.pk"],
-                action: { label: "Send Email", href: "mailto:hello@ascollection.pk" },
+                lines: [settings?.email || "hello@ascollection.pk", settings?.email || "orders@ascollection.pk"],
+                action: settings?.email ? { label: "Send Email", href: `mailto:${settings.email}` } : null,
               },
               {
                 icon: MapPin,
                 title: "Visit Our Store",
-                lines: ["Plot 14, Fashion Street", "DHA Phase 5, Lahore, Pakistan"],
+                lines: [settings?.address || "Plot 14, Fashion Street", `${settings?.city || "DHA Phase 5"}, ${settings?.country || "Pakistan"}`],
                 action: null,
               },
               {
@@ -144,11 +150,11 @@ export default function Contact() {
                     {item.action && (
                       <a
                         href={item.action.href}
-                        target="_blank"
+                        target={item.action.href.startsWith("mailto") ? "_self" : "_blank"}
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1.5 text-gold text-xs font-inter mt-2 hover:underline"
                       >
-                        {item.title.includes("WhatsApp") && <MessageCircle size={12} />}
+                        {item.action.label && item.action.label.includes("WhatsApp") && <MessageCircle size={12} />}
                         {item.action.label} →
                       </a>
                     )}

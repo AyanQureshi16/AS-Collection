@@ -93,7 +93,7 @@ export default function AdminLogin() {
             <p className={`font-poppins text-xs uppercase tracking-[0.2em] mb-2 ${
               isDark ? "text-gold" : "text-gold-dark"
             }`}>
-              AS Collection
+              ZELMIOR
             </p>
             <h1 className={`font-poppins font-bold text-2xl sm:text-3xl mb-2 ${
               isDark ? "text-white" : "text-slate-900"

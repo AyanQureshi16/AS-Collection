@@ -6,21 +6,22 @@ import { getFeaturedCustomerProducts } from "../../data/products";
 import { useState } from "react";
 import QuickView from "../ui/QuickView";
 import { useProducts } from "../../context/ProductContext";
+import { useSettings } from "../../context/SettingsContext";
 import { useLuxuryMotion } from "../../utils/motion";
 
 export default function FeaturedProducts() {
   const { products } = useProducts();
+  const { settings } = useSettings();
   const featuredProducts = getFeaturedCustomerProducts(products);
   const [quickViewProduct, setQuickViewProduct] = useState(null);
   const { fadeUp, transition } = useLuxuryMotion();
 
   if (!featuredProducts.length) return null;
 
-  const [hero, ...rest] = featuredProducts;
-  const sideProducts = rest.slice(0, 2);
+  const displayProducts = featuredProducts.slice(0, 4);
 
   return (
-    <section className="py-28 md:py-36 bg-ink">
+    <section className="py-28 md:py-36 bg-primary">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Editorial header */}
         <motion.div
@@ -32,7 +33,7 @@ export default function FeaturedProducts() {
           <div>
             <p className="eyebrow mb-4">Curated Selection</p>
             <h2 className="section-title leading-[1.05]">
-              THE ZELMIOR<br />
+              THE {settings?.storeName?.toUpperCase() || 'ZELMIOR'}<br />
               <span className="italic font-normal text-champagne">COLLECTION</span>
             </h2>
             <p className="font-inter text-muted text-sm md:text-base mt-4 max-w-md">
@@ -48,38 +49,16 @@ export default function FeaturedProducts() {
           </Link>
         </motion.div>
 
-        {/* Editorial asymmetric layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 lg:gap-8">
-          {/* Large featured — 60% */}
-          <div className="lg:col-span-3">
-            <ProductCard product={hero} onQuickView={setQuickViewProduct} variant="featured" />
-          </div>
-
-          {/* Two stacked — 40% */}
-          <div className="lg:col-span-2 flex flex-col gap-6 lg:gap-8">
-            {sideProducts.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                onQuickView={setQuickViewProduct}
-                variant="compact"
-              />
-            ))}
-          </div>
+        {/* Uniform grid layout */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+          {displayProducts.map((product) => (
+            <ProductCard
+              key={product.id}
+              product={product}
+              onQuickView={setQuickViewProduct}
+            />
+          ))}
         </div>
-
-        {/* Remaining products in horizontal scroll on mobile, grid on desktop */}
-        {rest.length > 2 && (
-          <div className="mt-12 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-8">
-            {rest.slice(2, 6).map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                onQuickView={setQuickViewProduct}
-              />
-            ))}
-          </div>
-        )}
       </div>
 
       {quickViewProduct && (

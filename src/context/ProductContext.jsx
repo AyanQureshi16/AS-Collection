@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback } from "react";
-import { getStoredProducts, saveStoredProducts } from "../utils/productStorage";
+import { getStoredProducts, saveStoredProducts, normalizeProductStock } from "../utils/productStorage";
 
 const ProductContext = createContext();
 
@@ -88,6 +88,38 @@ export function ProductProvider({ children }) {
     return duplicated;
   }, [products]);
 
+  const deductStock = useCallback((orderItems) => {
+    const now = new Date().toISOString();
+    const updated = products.map((product) => {
+      const orderItem = orderItems.find((item) => 
+        String(item.productId) === String(product.id) || String(item.id) === String(product.id)
+      );
+      
+      if (!orderItem) return product;
+      
+      const currentStock = normalizeProductStock(product?.stock ?? product?.inventory ?? 0);
+      const deductQuantity = Number(orderItem.quantity || 0);
+      const newStock = Math.max(0, currentStock - deductQuantity);
+      
+      // Ensure stock never goes negative
+      if (newStock < 0) {
+        console.warn(`Attempted to deduct ${deductQuantity} from stock ${currentStock} for product ${product.name}. Stock not changed.`);
+        return product;
+      }
+      
+      return {
+        ...product,
+        stock: newStock,
+        updatedAt: now,
+        lastUpdated: "Just now",
+      };
+    });
+    
+    setProducts(updated);
+    saveStoredProducts(updated);
+    return updated;
+  }, [products]);
+
   return (
     <ProductContext.Provider
       value={{
@@ -98,6 +130,7 @@ export function ProductProvider({ children }) {
         updateProduct,
         deleteProduct,
         duplicateProduct,
+        deductStock,
       }}
     >
       {children}

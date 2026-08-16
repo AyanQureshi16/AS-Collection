@@ -1,20 +1,53 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Minus, Plus, Trash2, ShoppingBag, ArrowRight } from "lucide-react";
+import { Minus, Plus, Trash2, ShoppingBag, ArrowRight, AlertTriangle } from "lucide-react";
 import Layout from "../components/layout/Layout";
 import { useCart } from "../context/CartContext";
+import { useSettings } from "../context/SettingsContext";
+import { useProducts } from "../context/ProductContext";
+import { normalizeProductStock } from "../utils/productStorage";
 import toast from "react-hot-toast";
 
 const SHIPPING = 0;
 
 export default function Cart() {
-  const { cartItems, cartSubtotal, updateQuantity, removeFromCart, clearCart } = useCart();
+  const { cartItems, cartSubtotal, updateQuantity, removeFromCart, clearCart, getAvailableStock } = useCart();
+  const { settings } = useSettings();
+  const { products } = useProducts();
   const [couponCode, setCouponCode] = useState("");
   const [couponApplied, setCouponApplied] = useState(false);
   const [couponDiscount, setCouponDiscount] = useState(0);
+  const [stockIssues, setStockIssues] = useState([]);
+  
+  const currencySymbol = settings?.currencySymbol || "₨";
+  const currency = settings?.currency || "PKR";
+  const isStoreClosed = settings?.storeStatus === "Closed";
 
   const grandTotal = cartSubtotal - couponDiscount + SHIPPING;
+
+  // Check for stale cart items on mount
+  useEffect(() => {
+    const issues = [];
+    cartItems.forEach((item) => {
+      const availableStock = getAvailableStock(item);
+      if (item.quantity > availableStock) {
+        issues.push({
+          item,
+          availableStock,
+          requestedQuantity: item.quantity
+        });
+      }
+    });
+    setStockIssues(issues);
+  }, [cartItems, getAvailableStock]);
+
+  const handleStockIssue = (item, availableStock) => {
+    updateQuantity(item.id, item.selectedSize, availableStock);
+    toast.success(`Quantity adjusted to available stock (${availableStock})`, {
+      style: { background: "#1a1a1a", color: "#fff" },
+    });
+  };
 
   const handleRemove = (id, size) => {
     removeFromCart(id, size);
@@ -78,6 +111,45 @@ export default function Cart() {
             </p>
           </motion.div>
 
+          {/* Stock issues warning */}
+          {stockIssues.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/30"
+            >
+              <div className="flex items-start gap-3">
+                <AlertTriangle size={20} className="text-red-400 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <p className="text-red-400 font-inter text-sm font-semibold mb-2">
+                    Stock has changed since you added these items:
+                  </p>
+                  <div className="space-y-2">
+                    {stockIssues.map((issue, index) => (
+                      <div key={index} className="flex items-center justify-between text-white/80 text-xs">
+                        <span>{issue.item.name}</span>
+                        <span className="text-red-400">
+                          {issue.requestedQuantity} → {issue.availableStock} available
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                  <button
+                    onClick={() => {
+                      stockIssues.forEach((issue) => {
+                        handleStockIssue(issue.item, issue.availableStock);
+                      });
+                      setStockIssues([]);
+                    }}
+                    className="mt-3 px-4 py-2 bg-red-500/20 text-red-400 text-xs font-inter rounded-lg hover:bg-red-500/30 transition-colors"
+                  >
+                    Adjust Quantities to Available Stock
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
           <div className="grid lg:grid-cols-3 gap-10">
             <div className="lg:col-span-2 space-y-5">
               {cartItems.map((item, i) => {
@@ -138,10 +210,10 @@ export default function Cart() {
 
                         <div className="text-right">
                           <p className="font-playfair font-bold gold-text text-lg">
-                            PKR {(Number(item.price || 0) * Number(item.quantity || 0)).toLocaleString()}
+                            {currencySymbol} {(Number(item.price || 0) * Number(item.quantity || 0)).toLocaleString()}
                           </p>
                           {Number(item.quantity || 0) > 1 && (
-                            <p className="text-white/30 text-xs">PKR {Number(item.price || 0).toLocaleString()} each</p>
+                            <p className="text-white/30 text-xs">{currencySymbol} {Number(item.price || 0).toLocaleString()} each</p>
                           )}
                         </div>
                       </div>
@@ -167,7 +239,7 @@ export default function Cart() {
                 <h3 className="font-playfair font-semibold text-white text-base mb-5">Coupon Code</h3>
                 {couponApplied ? (
                   <div className="flex items-center gap-2 text-green-400 text-sm font-inter">
-                    <span>✓</span> AS10 applied — PKR {couponDiscount.toLocaleString()} off
+                    <span>✓</span> AS10 applied — {currencySymbol} {couponDiscount.toLocaleString()} off
                   </div>
                 ) : (
                   <form onSubmit={handleCoupon} className="flex gap-3">
@@ -203,12 +275,12 @@ export default function Cart() {
                 <div className="space-y-4 text-sm font-inter">
                   <div className="flex justify-between text-white/50">
                     <span>Subtotal</span>
-                    <span>PKR {cartSubtotal.toLocaleString()}</span>
+                    <span>{currencySymbol} {cartSubtotal.toLocaleString()}</span>
                   </div>
                   {couponDiscount > 0 && (
                     <div className="flex justify-between text-green-400">
                       <span>Coupon Discount</span>
-                      <span>-PKR {couponDiscount.toLocaleString()}</span>
+                      <span>-{currencySymbol} {couponDiscount.toLocaleString()}</span>
                     </div>
                   )}
                   <div className="flex justify-between text-white/50">
@@ -218,15 +290,24 @@ export default function Cart() {
                   <div className="h-px bg-white/5 my-4" />
                   <div className="flex justify-between text-white font-poppins font-bold text-lg">
                     <span>Grand Total</span>
-                    <span className="gold-text">PKR {grandTotal.toLocaleString()}</span>
+                    <span className="gold-text">{currencySymbol} {grandTotal.toLocaleString()}</span>
                   </div>
                 </div>
 
                 <motion.div className="mt-6" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                  <Link to="/checkout" className="btn-gold w-full flex items-center justify-center gap-2 py-4 text-base">
-                    Proceed to Checkout
-                    <ArrowRight size={18} />
-                  </Link>
+                  {isStoreClosed ? (
+                    <button
+                      disabled
+                      className="btn-gold w-full flex items-center justify-center gap-2 py-4 text-base opacity-60 cursor-not-allowed"
+                    >
+                      Store Closed - Checkout Disabled
+                    </button>
+                  ) : (
+                    <Link to="/checkout" className="btn-gold w-full flex items-center justify-center gap-2 py-4 text-base">
+                      Proceed to Checkout
+                      <ArrowRight size={18} />
+                    </Link>
+                  )}
                 </motion.div>
 
                 <Link to="/shop" className="block text-center text-white/30 hover:text-gold text-sm font-inter mt-5 transition-colors">

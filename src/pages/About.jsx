@@ -11,12 +11,12 @@ const values = [
   {
     icon: Heart,
     title: "Made with Passion",
-    desc: "AS Collection was born from a deep love for Pakistani craftsmanship and a desire to share it with the world.",
+    desc: "ZELMIOR was born from a deep love for premium timepieces and a desire to share exceptional craftsmanship with the world.",
   },
   {
     icon: Globe,
     title: "Globally Inspired",
-    desc: "We draw inspiration from London, Milan, and Tokyo — filtered through a distinctly Pakistani lens.",
+    desc: "We draw inspiration from London, Milan, and Tokyo — filtered through a distinctly sophisticated lens.",
   },
   {
     icon: Users,
@@ -30,7 +30,7 @@ const team = [
     name: "Ayaan Shahid",
     role: "Founder & Creative Director",
     image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&q=80",
-    bio: "With 10 years in luxury fashion, Ayaan founded AS Collection to bring world-class fashion to Pakistan.",
+    bio: "With 10 years in luxury timepieces, Ayaan founded ZELMIOR to bring world-class craftsmanship to Pakistan.",
   },
   {
     name: "Zara Malik",
@@ -54,7 +54,7 @@ export default function About() {
         <div className="h-[60vh] relative flex items-center justify-center">
           <img
             src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1800&q=80"
-            alt="AS Collection brand story"
+            alt="ZELMIOR brand story"
             className="absolute inset-0 w-full h-full object-cover opacity-25"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-primary/80 to-primary" />
@@ -74,7 +74,7 @@ export default function About() {
             >
               Crafting <span className="gold-text">Luxury</span>{" "}
               <br className="hidden sm:block" />
-              for Pakistan
+              Timepieces
             </motion.h1>
             <motion.p
               initial={{ opacity: 0 }}
@@ -82,7 +82,7 @@ export default function About() {
               transition={{ delay: 0.4 }}
               className="font-inter text-white/50 text-lg max-w-2xl mx-auto leading-relaxed"
             >
-              Since 2018, AS Collection has been redefining luxury fashion in Pakistan —
+              Since 2018, ZELMIOR has been redefining luxury timepieces —
               one meticulously crafted piece at a time.
             </motion.p>
           </div>
@@ -105,20 +105,18 @@ export default function About() {
             </h2>
             <div className="space-y-4 font-inter text-white/50 leading-relaxed">
               <p>
-                AS Collection was founded in 2018 by Ayaan Shahid, a Lahore-born
-                fashion enthusiast who grew up watching his grandmother embroider intricate
-                patterns on silk with remarkable precision and love.
+                ZELMIOR was founded in 2018 by Ayaan Shahid, a Lahore-born
+                watch enthusiast who grew up appreciating the precision and beauty of fine timepieces.
               </p>
               <p>
                 Frustrated by the gap between international luxury brands and the
                 extraordinary craftsmanship available right here in Pakistan, Ayaan
                 set out to create a brand that would celebrate local artistry while
-                bringing a global, aspirational aesthetic to Pakistani consumers.
+                bringing a global, aspirational aesthetic to discerning customers.
               </p>
               <p>
-                Today, AS Collection is home to over 10,000 satisfied customers across
-                Pakistan, offering meticulously curated fashion, timepieces, and
-                fragrances that tell a story of culture, craft, and luxury.
+                Today, ZELMIOR is home to over 10,000 satisfied customers across
+                Pakistan, offering meticulously curated timepieces that tell a story of culture, craft, and luxury.
               </p>
             </div>
           </motion.div>
@@ -129,9 +127,9 @@ export default function About() {
             className="grid grid-cols-2 gap-3"
           >
             <img src="https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=400&q=80" alt="Luxury watch" className="rounded-2xl h-48 object-cover" />
-            <img src="https://images.unsplash.com/photo-1541643600914-78b084683702?w=400&q=80" alt="Perfume" className="rounded-2xl h-48 object-cover mt-6" />
-            <img src="https://images.unsplash.com/photo-1617137968427-85924c800a22?w=400&q=80" alt="Clothing" className="rounded-2xl h-48 object-cover -mt-6" />
-            <img src="https://images.unsplash.com/photo-1583391733956-6c78276477e2?w=400&q=80" alt="Bridal" className="rounded-2xl h-48 object-cover" />
+            <img src="https://images.unsplash.com/photo-1583391733956-6c78276477e2?w=400&q=80" alt="Timepiece" className="rounded-2xl h-48 object-cover mt-6" />
+            <img src="https://images.unsplash.com/photo-1617137968427-85924c800a22?w=400&q=80" alt="Watch" className="rounded-2xl h-48 object-cover -mt-6" />
+            <img src="https://images.unsplash.com/photo-1541643600914-78b084683702?w=400&q=80" alt="Chronograph" className="rounded-2xl h-48 object-cover" />
           </motion.div>
         </section>
 

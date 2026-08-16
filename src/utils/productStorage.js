@@ -30,20 +30,6 @@ const INITIAL_PRODUCTS = [
     image: "https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=100&q=80",
   },
   {
-    id: 3,
-    name: "Oud Royale Attar",
-    category: "Perfumes",
-    brand: "AS Collection",
-    sku: "SKU-003",
-    price: 1500,
-    salePrice: 1200,
-    stock: 8,
-    status: "Active",
-    featured: false,
-    lastUpdated: "1 day ago",
-    image: "https://images.unsplash.com/photo-1541643600914-78b084683702?w=100&q=80",
-  },
-  {
     id: 4,
     name: "Silk Gharara Bridal",
     category: "Women",
@@ -98,20 +84,6 @@ const INITIAL_PRODUCTS = [
     featured: false,
     lastUpdated: "2 weeks ago",
     image: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=100&q=80",
-  },
-  {
-    id: 8,
-    name: "Rose Gold Perfume Set",
-    category: "Perfumes",
-    brand: "AS Collection",
-    sku: "SKU-008",
-    price: 3000,
-    salePrice: 2500,
-    stock: 5,
-    status: "Active",
-    featured: false,
-    lastUpdated: "3 weeks ago",
-    image: "https://images.unsplash.com/photo-1594035910387-fea47794261f?w=100&q=80",
   },
 ];
 
@@ -174,10 +146,10 @@ export const normalizeProductStock = (value) => {
   return Number.isFinite(numeric) && numeric >= 0 ? Math.max(0, numeric) : 0;
 };
 
-export const getProductStockStatus = (product) => {
+export const getProductStockStatus = (product, lowStockThreshold = 10) => {
   const stockValue = normalizeProductStock(product?.stock ?? product?.inventory ?? 0);
   if (stockValue <= 0) return "Out of Stock";
-  if (stockValue <= 10) return "Limited Stock";
+  if (stockValue <= Number(lowStockThreshold)) return "Limited Stock";
   return "In Stock";
 };
 

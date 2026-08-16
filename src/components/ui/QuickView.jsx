@@ -3,6 +3,7 @@ import { X, ShoppingBag, Heart, Star } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
 import { useWishlist } from "../../context/WishlistContext";
+import { useSettings } from "../../context/SettingsContext";
 import { normalizeProductStock } from "../../utils/productStorage";
 import toast from "react-hot-toast";
 import { useState } from "react";
@@ -10,7 +11,12 @@ import { useState } from "react";
 export default function QuickView({ product, onClose }) {
   const { addToCart } = useCart();
   const { toggleWishlist, isWishlisted } = useWishlist();
+  const { settings } = useSettings();
   const [selectedSize, setSelectedSize] = useState(product?.sizes?.[0]);
+  
+  const currencySymbol = settings?.currencySymbol || "₨";
+  const currency = settings?.currency || "PKR";
+  const lowStockThreshold = settings?.lowStockThreshold || 10;
 
   if (!product) return null;
 
@@ -19,6 +25,15 @@ export default function QuickView({ product, onClose }) {
   const isOutOfStock = stockValue <= 0;
 
   const handleAddToCart = () => {
+    const isStoreClosed = settings?.storeStatus === "Closed";
+    
+    if (isStoreClosed) {
+      toast.error("Store is currently closed. Purchasing is disabled.", {
+        style: { background: "#1a1a1a", color: "#fff" },
+      });
+      return;
+    }
+    
     if (isOutOfStock) {
       toast.error("This product is out of stock.", {
         style: { background: "#1a1a1a", color: "#fff" },
@@ -99,11 +114,11 @@ export default function QuickView({ product, onClose }) {
 
               <div className="flex items-center gap-3 mb-4">
                 <span className="font-poppins font-bold text-gold text-2xl">
-                  PKR {product.price.toLocaleString()}
+                  {currencySymbol} {product.price.toLocaleString()}
                 </span>
                 {product.oldPrice && (
                   <span className="text-white/30 text-sm line-through">
-                    PKR {product.oldPrice.toLocaleString()}
+                    {currencySymbol} {product.oldPrice.toLocaleString()}
                   </span>
                 )}
                 {product.discount > 0 && (
