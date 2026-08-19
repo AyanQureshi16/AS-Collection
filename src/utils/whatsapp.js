@@ -1,4 +1,4 @@
-// WhatsApp order message generator for AS Collection
+// WhatsApp order message generator for ZELMIOR
 // Redirects to wa.me with a pre-filled order message
 
 const formatPrice = (amount, currencySymbol = "₨") => `${currencySymbol} ${Number(amount || 0).toLocaleString("en-PK")}`;
@@ -8,7 +8,7 @@ export const generateWhatsAppOrder = (
   customerInfo,
   shippingCharge = 0,
   whatsAppNumber = "",
-  storeName = "AS Collection",
+  storeName = "ZELMIOR",
   currencySymbol = "₨"
 ) => {
   const cleanedNumber = String(whatsAppNumber || "").replace(/\D/g, "");

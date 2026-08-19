@@ -206,7 +206,7 @@ export default function Checkout() {
         return;
       }
 
-      const waUrl = generateWhatsAppOrder(waCartItems, waCustomer, SHIPPING, waNumber, settings?.storeName || "AS Collection", currencySymbol);
+      const waUrl = generateWhatsAppOrder(waCartItems, waCustomer, SHIPPING, waNumber, settings?.storeName || "ZELMIOR", currencySymbol);
 
       if (!waUrl) {
         toast.error("Could not generate WhatsApp URL. Please check settings.", { style: { background: "#1a1a1a", color: "#fff" } });

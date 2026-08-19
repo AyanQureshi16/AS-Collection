@@ -1,7 +1,7 @@
 const STORAGE_KEY = "as_collection_settings";
 
 const DEFAULT_SETTINGS = {
-  storeName: "AS Collection",
+  storeName: "ZELMIOR",
   tagline: "",
   email: "",
   phone: "",

@@ -1,4 +1,4 @@
-// AS Collection — 32 Realistic Dummy Products
+// ZELMIOR — 32 Realistic Dummy Products
 // Categories: men, women, watches
 // Images sourced from Unsplash (free CDN, no auth required)
 
@@ -805,7 +805,7 @@ export const products = [
     price: 65000,
     oldPrice: 80000,
     discount: 19,
-    description: "A bold chronograph with a pvd black case and triple-register layout. The Prestige features a screw-down crown, a tachymeter bezel, and a rotor engraved with the AS Collection emblem.",
+    description: "A bold chronograph with a pvd black case and triple-register layout. The Prestige features a screw-down crown, a tachymeter bezel, and a rotor engraved with the ZELMIOR emblem.",
     specifications: {
       Movement: "Quartz Chronograph",
       Case: "44mm PVD Black Steel",
